@@ -173,7 +173,6 @@
       
       useEffect(() => { StorageService.save(data); }, [data]);
 
-      // All state updates now use ...p to ensure 'profile' and other top-level keys aren't dropped.
       return (
         <BookContext.Provider value={{ 
           books: data.books, collections: data.collections, profile: data.profile || defaultProfile,
@@ -334,7 +333,7 @@
     }
 
     // ==========================================
-    // 5. SHARED COMPONENTS
+    // 5. SHARED UI COMPONENTS
     // ==========================================
     const StatusBadge = ({ status }) => {
       let colors = 'bg-gray-100 text-gray-600'; 
@@ -555,7 +554,324 @@
     };
 
     // ==========================================
-    // 7. PROFILE & ABOUT VIEWS
+    // 7. BOOKS & FORMS VIEWS (Restored)
+    // ==========================================
+    const MyBooks = () => {
+      const { collectionId } = useParams(); const location = useLocation(); const navigate = useNavigate(); const addToast = useToast();
+      const { books, collections, renameCollection, deleteCollection } = useContext(BookContext);
+      
+      const searchParams = new URLSearchParams(location.search);
+      const [activeFilter, setActiveFilter] = useState(searchParams.get('filter') || 'All');
+      const [searchQuery, setSearchQuery] = useState('');
+      const [sortBy, setSortBy] = useState('Recently Added');
+      const [viewMode, setViewMode] = useState('grid');
+      
+      useEffect(() => { setActiveFilter(searchParams.get('filter') || 'All'); }, [location.search]);
+
+      const currentCollection = collectionId ? collections.find(c => c.id === collectionId) : null;
+      const filteredAndSortedBooks = useMemo(() => {
+        let res = [...books];
+        if (collectionId) res = res.filter(b => b.collections?.includes(collectionId));
+        if (activeFilter !== 'All') {
+          if (activeFilter === 'Owned') res = res.filter(b => b.ownership === 'Owned');
+          else if (activeFilter === 'Not Owned') res = res.filter(b => b.ownership === 'Not Owned');
+          else res = res.filter(b => b.status === activeFilter);
+        }
+        if (searchQuery) { const q = searchQuery.toLowerCase(); res = res.filter(b => b.title.toLowerCase().includes(q) || b.author.toLowerCase().includes(q)); }
+        res.sort((a, b) => {
+          if (sortBy === 'Recently Added') return new Date(b.dateAdded || 0) - new Date(a.dateAdded || 0);
+          if (sortBy === 'Title A-Z') return a.title.localeCompare(b.title);
+          if (sortBy === 'Author A-Z') return a.author.localeCompare(b.author);
+          if (sortBy === 'Rating') return (b.rating || 0) - (a.rating || 0); return 0;
+        });
+        return res;
+      }, [books, activeFilter, searchQuery, sortBy, collectionId]);
+
+      const handleFilterClick = (f) => { setActiveFilter(f); navigate(f === 'All' ? location.pathname : `${location.pathname}?filter=${f}`); };
+      const handleRename = () => { const n = window.prompt('Rename collection:', currentCollection?.name); if (n) { renameCollection(currentCollection.id, n); addToast('Collection renamed'); } };
+      const handleDelete = () => { if (window.confirm(`Delete "${currentCollection?.name}"? Books remain safe.`)) { deleteCollection(currentCollection.id); addToast('Collection deleted'); navigate('/books'); } };
+
+      return (
+        <div className="flex flex-col h-full gap-4 md:gap-6 animate-fade-in-up">
+          {currentCollection && (
+             <div className="flex flex-wrap items-center gap-3 bg-white p-3 md:p-4 rounded-xl border border-gray-100 shadow-sm">
+                <span className="text-gray-500 text-sm font-medium w-full sm:w-auto">Collection: {currentCollection.name}</span>
+                <button onClick={handleRename} className="text-sm px-3 py-1.5 bg-gray-50 hover:bg-gray-100 rounded-lg text-gray-700 flex items-center gap-1 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-500"><Icons.Edit2 className="w-3 h-3"/> Rename</button>
+                <button onClick={handleDelete} className="text-sm px-3 py-1.5 bg-red-50 hover:bg-red-100 rounded-lg text-red-600 flex items-center gap-1 border border-red-100 focus:outline-none focus:ring-2 focus:ring-red-500"><Icons.Trash2 className="w-3 h-3"/> Delete</button>
+             </div>
+          )}
+          <div className="bg-white p-3 md:p-4 rounded-xl border border-gray-100 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex items-center gap-2 overflow-x-auto custom-scrollbar pb-2 md:pb-0 -mx-3 px-3 md:mx-0 md:px-0">
+              {['All', 'Owned', 'Not Owned', 'Unread', 'Currently Reading', 'Finished', 'Dropped'].map(f => (
+                <button key={f} onClick={() => handleFilterClick(f)} className={`whitespace-nowrap px-3 md:px-4 py-1.5 rounded-full text-xs md:text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-brand-500/50 ${activeFilter === f ? 'bg-brand-50 text-brand-600 border border-brand-200' : 'bg-transparent text-gray-500 hover:bg-gray-50 border border-transparent'}`}>{f}</button>
+              ))}
+            </div>
+            <div className="flex flex-wrap md:flex-nowrap items-center gap-3">
+              <div className="relative w-full md:w-auto">
+                <Icons.Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input type="text" placeholder="Search..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full md:w-48 pl-9 pr-4 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/50" aria-label="Search books" />
+              </div>
+              <div className="flex items-center gap-2 w-full md:w-auto justify-between md:justify-start">
+                <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="py-1.5 px-3 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-brand-500/50" aria-label="Sort books">
+                  <option value="Recently Added">Recent</option><option value="Title A-Z">Title A-Z</option><option value="Author A-Z">Author A-Z</option><option value="Rating">Rating</option>
+                </select>
+                <div className="flex items-center bg-gray-50 p-1 rounded-lg border border-gray-200 shrink-0">
+                  <button onClick={() => setViewMode('grid')} className={`p-1 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-brand-500/50 ${viewMode === 'grid' ? 'bg-white shadow-sm text-brand-600' : 'text-gray-400'}`} aria-label="Grid view"><Icons.Grid className="w-4 h-4" /></button>
+                  <button onClick={() => setViewMode('list')} className={`p-1 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-brand-500/50 ${viewMode === 'list' ? 'bg-white shadow-sm text-brand-600' : 'text-gray-400'}`} aria-label="List view"><Icons.List className="w-4 h-4" /></button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="flex-1 pb-4">
+            {filteredAndSortedBooks.length > 0 ? (
+              <div className={viewMode === 'grid' ? "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6" : "flex flex-col gap-3 md:gap-4"}>
+                {filteredAndSortedBooks.map(b => <BookCard key={b.id} book={b} viewMode={viewMode} />)}
+              </div>
+            ) : (
+              <EmptyState title="No books found" message="We couldn't find any books matching your current filters or search." icon={Icons.Library} actionText="Clear Filters" onAction={() => { handleFilterClick('All'); setSearchQuery(''); }} />
+            )}
+          </div>
+        </div>
+      );
+    };
+
+    const ToBuyPage = () => {
+      const { books, updateBook } = useContext(BookContext); const navigate = useNavigate(); const addToast = useToast();
+      const wishList = useMemo(() => books.filter(b => b.wantToBuy), [books]);
+
+      const handlePurchase = (book) => {
+        updateBook({ ...book, wantToBuy: false, ownership: 'Owned', status: book.status || 'Unread', dateAdded: new Date().toISOString() });
+        addToast(`Marked "${book.title}" as purchased!`);
+      };
+
+      if (wishList.length === 0) return <EmptyState title="Your wishlist is empty" message="Books marked as 'Want to Buy' will appear here." icon={Icons.ShoppingCart} actionText="Add a Book" onAction={() => navigate('/books/add')} />;
+
+      const getPrioColor = (p) => p === 'High' ? 'text-red-600 bg-red-50 border-red-200' : p === 'Medium' ? 'text-orange-600 bg-orange-50 border-orange-200' : 'text-green-600 bg-green-50 border-green-200';
+
+      return (
+        <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden animate-fade-in-up">
+          <div className="overflow-x-auto custom-scrollbar">
+            <table className="w-full text-left border-collapse min-w-[600px]">
+              <thead>
+                <tr className="bg-gray-50 border-b border-gray-100 text-xs font-semibold text-gray-500 uppercase tracking-wider"><th className="p-3 md:p-4 pl-4 md:pl-6">Book Details</th><th className="p-3 md:p-4">Priority</th><th className="p-3 md:p-4">Price</th><th className="p-3 md:p-4 pr-4 md:pr-6 text-right">Actions</th></tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {wishList.map(b => (
+                  <tr key={b.id} className="hover:bg-gray-50/50 transition-colors">
+                    <td className="p-3 md:p-4 pl-4 md:pl-6 flex items-center gap-3 md:gap-4 cursor-pointer" onClick={() => navigate(`/books/${b.id}`)}>
+                      <img src={b.cover} alt={b.title} className="w-10 h-14 md:w-12 md:h-16 object-cover rounded shadow-sm border border-gray-100" loading="lazy" />
+                      <div><h4 className="font-semibold text-gray-900 text-sm md:text-base line-clamp-1">{b.title}</h4><p className="text-xs md:text-sm text-gray-500 line-clamp-1">{b.author}</p></div>
+                    </td>
+                    <td className="p-3 md:p-4"><span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] md:text-xs font-medium border whitespace-nowrap ${getPrioColor(b.priority)}`}>{b.priority}</span></td>
+                    <td className="p-3 md:p-4 font-medium text-gray-900 text-sm">{b.price > 0 ? `₹${b.price}` : '-'}</td>
+                    <td className="p-3 md:p-4 pr-4 md:pr-6 text-right space-x-2 md:space-x-3 whitespace-nowrap">
+                      <button onClick={() => handlePurchase(b)} className="text-xs md:text-sm px-2.5 py-1.5 bg-brand-50 hover:bg-brand-100 text-brand-600 font-medium rounded border border-brand-200 transition-colors focus:outline-none focus:ring-2 focus:ring-brand-500">Purchased</button>
+                      <button onClick={() => navigate(`/books/${b.id}/edit`)} className="text-gray-400 hover:text-gray-900 p-1 rounded focus:outline-none focus:ring-2 focus:ring-brand-500" aria-label="Edit"><Icons.Edit2 className="w-4 h-4 inline"/></button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      );
+    };
+
+    const BookForm = () => {
+      const { id } = useParams(); const navigate = useNavigate(); const addToast = useToast();
+      const { books, collections, addBook, updateBook } = useContext(BookContext);
+      const existingBook = id ? books.find(b => b.id === id) : null;
+
+      const [formData, setFormData] = useState(existingBook || { title: '', author: '', cover: '', totalPages: '', readPages: 0, genre: '', isbn: '', status: 'Unread', ownership: 'Owned', rating: 0, notes: '', wantToBuy: false, priority: 'Medium', price: '', collections: [], dateFinished: null });
+
+      const handleChange = (e) => {
+        const { name, value, type, checked } = e.target;
+        if (name === 'wantToBuy') setFormData({ ...formData, wantToBuy: checked, ownership: checked ? 'Not Owned' : 'Owned' });
+        else setFormData({ ...formData, [name]: type === 'checkbox' ? checked : value });
+      };
+      const handleCollectionToggle = (colId) => setFormData(p => ({ ...p, collections: p.collections.includes(colId) ? p.collections.filter(i => i !== colId) : [...p.collections, colId] }));
+
+      const handleSubmit = (e) => {
+        e.preventDefault();
+        let dataToSave = { ...formData, totalPages: parseInt(formData.totalPages) || 0, readPages: parseInt(formData.readPages) || 0, rating: parseInt(formData.rating) || 0, price: parseFloat(formData.price) || 0 };
+        if (!dataToSave.cover) dataToSave.cover = `https://placehold.co/300x450/fdfbf7/333333?text=${encodeURIComponent(dataToSave.title)}`;
+
+        if (dataToSave.status === 'Finished') { dataToSave.readPages = dataToSave.totalPages; dataToSave.progress = 100; if (existingBook?.status !== 'Finished') dataToSave.dateFinished = new Date().toISOString(); }
+        else if (dataToSave.status === 'Unread') { dataToSave.readPages = 0; dataToSave.progress = 0; }
+        else { dataToSave.progress = dataToSave.totalPages ? Math.round((dataToSave.readPages / dataToSave.totalPages) * 100) : 0; }
+
+        if (id) { updateBook(dataToSave); addToast('Book updated'); } else { addBook(dataToSave); addToast('Book added'); }
+        navigate(-1);
+      };
+
+      const inputClass = "w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500/50 bg-white text-sm";
+      const labelClass = "block text-xs font-medium text-gray-600 mb-1.5";
+
+      return (
+        <div className="max-w-4xl mx-auto bg-white p-4 md:p-8 rounded-xl border border-gray-100 shadow-sm animate-fade-in-up">
+          <button onClick={() => navigate(-1)} className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 mb-4 focus:outline-none focus:ring-2 focus:ring-brand-500 rounded p-1 -ml-1"><Icons.ArrowLeft className="w-4 h-4"/> Back</button>
+          <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-6">{id ? 'Edit Book' : 'Add New Book'}</h2>
+          
+          <form onSubmit={handleSubmit} className="space-y-6 md:space-y-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+              <div className="space-y-5">
+                <div className="bg-gray-50/80 p-4 md:p-5 rounded-xl border border-gray-100 space-y-4">
+                  <h3 className="font-semibold text-sm text-gray-900 border-b border-gray-200 pb-2">Core Information</h3>
+                  <div><label className={labelClass}>Title <span className="text-red-500">*</span></label><input required type="text" name="title" value={formData.title} onChange={handleChange} className={inputClass} placeholder="Book title" /></div>
+                  <div><label className={labelClass}>Author <span className="text-red-500">*</span></label><input required type="text" name="author" value={formData.author} onChange={handleChange} className={inputClass} placeholder="Author name" /></div>
+                  <div><label className={labelClass}>Cover Image URL</label><input type="url" name="cover" value={formData.cover} onChange={handleChange} className={inputClass} placeholder="https://..." /></div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div><label className={labelClass}>Total Pages</label><input type="number" min="0" name="totalPages" value={formData.totalPages} onChange={handleChange} className={inputClass} /></div>
+                    <div><label className={labelClass}>Genre</label><input type="text" name="genre" value={formData.genre} onChange={handleChange} className={inputClass} /></div>
+                  </div>
+                </div>
+
+                <div className="bg-gray-50/80 p-4 md:p-5 rounded-xl border border-gray-100">
+                  <h3 className="font-semibold text-sm text-gray-900 border-b border-gray-200 pb-2 mb-3">Add to Collections</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-40 overflow-y-auto custom-scrollbar pr-2">
+                    {collections.length === 0 ? <p className="text-xs text-gray-500 italic col-span-2">No collections available.</p> : collections.map(col => (
+                      <label key={col.id} className="flex items-center gap-2.5 text-sm text-gray-700 cursor-pointer p-1 rounded hover:bg-gray-100">
+                        <input type="checkbox" checked={formData.collections.includes(col.id)} onChange={() => handleCollectionToggle(col.id)} className="w-4 h-4 rounded border-gray-300 text-brand-600 focus:ring-brand-500" /> <span className="truncate">{col.name}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-5">
+                <div className={`p-4 md:p-5 rounded-xl border transition-colors ${formData.wantToBuy ? 'bg-yellow-50/50 border-yellow-200' : 'bg-gray-50/80 border-gray-100'}`}>
+                  <label className="flex items-center gap-3 font-semibold text-gray-900 cursor-pointer select-none">
+                    <input type="checkbox" name="wantToBuy" checked={formData.wantToBuy} onChange={handleChange} className="w-4 h-4 rounded border-gray-300 text-brand-600 focus:ring-brand-500" /> I want to buy this book
+                  </label>
+                  {formData.wantToBuy && (
+                    <div className="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-yellow-200/50 animate-fade-in-up">
+                      <div><label className={labelClass}>Priority</label><select name="priority" value={formData.priority} onChange={handleChange} className={inputClass}><option value="High">High</option><option value="Medium">Medium</option><option value="Low">Low</option></select></div>
+                      <div><label className={labelClass}>Price (₹)</label><input type="number" min="0" step="0.01" name="price" value={formData.price} onChange={handleChange} className={inputClass} /></div>
+                    </div>
+                  )}
+                </div>
+
+                <div className={`bg-gray-50/80 p-4 md:p-5 rounded-xl border border-gray-100 space-y-4 transition-opacity ${formData.wantToBuy ? 'opacity-50 pointer-events-none' : ''}`}>
+                  <h3 className="font-semibold text-sm text-gray-900 border-b border-gray-200 pb-2">Library Status</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div><label className={labelClass}>Ownership</label><select name="ownership" value={formData.ownership} onChange={handleChange} className={inputClass}><option value="Owned">Owned</option><option value="Not Owned">Not Owned</option></select></div>
+                    <div><label className={labelClass}>Status</label><select name="status" value={formData.status} onChange={handleChange} className={inputClass}><option value="Unread">Unread</option><option value="Currently Reading">Currently Reading</option><option value="Finished">Finished</option><option value="Dropped">Dropped</option></select></div>
+                  </div>
+                  {formData.status === 'Currently Reading' && (
+                    <div className="animate-fade-in-up"><label className={labelClass}>Current Page</label><input type="number" min="0" max={formData.totalPages || undefined} name="readPages" value={formData.readPages} onChange={handleChange} className={inputClass} /></div>
+                  )}
+                  <div><label className={labelClass}>Rating (0-5)</label><input type="number" min="0" max="5" step="0.5" name="rating" value={formData.rating} onChange={handleChange} className={inputClass} /></div>
+                </div>
+
+                <div className="bg-gray-50/80 p-4 md:p-5 rounded-xl border border-gray-100">
+                  <label className={labelClass}>Notes</label>
+                  <textarea name="notes" rows="3" value={formData.notes} onChange={handleChange} className={`${inputClass} resize-none`} placeholder="Your thoughts..."></textarea>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 pt-6 border-t border-gray-100">
+              <button type="button" onClick={() => navigate(-1)} className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-300 transition-colors">Cancel</button>
+              <button type="submit" className="px-5 py-2 text-sm font-medium text-white bg-brand-600 hover:bg-brand-700 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 transition-colors">Save Book</button>
+            </div>
+          </form>
+        </div>
+      );
+    };
+
+    const BookDetails = () => {
+      const { id } = useParams(); const navigate = useNavigate(); const addToast = useToast();
+      const { books, collections, updateBook, deleteBook } = useContext(BookContext);
+      const book = books.find(b => b.id === id);
+      const [readPages, setReadPages] = useState(book?.readPages || 0);
+
+      useEffect(() => { if (book) setReadPages(book.readPages || 0); }, [book]);
+
+      if (!book) return <EmptyState title="Book not found" message="This book may have been deleted." icon={Icons.BookOpen} actionText="Go to Library" onAction={() => navigate('/books')} />;
+
+      const handleUpdateProgress = () => {
+        const val = parseInt(readPages) || 0; const total = book.totalPages || 0;
+        let newStatus = book.status; let newDateFinished = book.dateFinished;
+        const progress = total > 0 ? Math.round((val/total)*100) : 0;
+        if (val >= total && total > 0) { newStatus = 'Finished'; if (book.status !== 'Finished') newDateFinished = new Date().toISOString(); }
+        updateBook({ ...book, readPages: val, progress, status: newStatus, dateFinished: newDateFinished });
+        addToast(newStatus === 'Finished' ? 'Book finished! 🎉' : 'Progress saved');
+      };
+
+      const bookCollections = collections.filter(c => book.collections?.includes(c.id));
+      const currentProgress = book.totalPages > 0 ? Math.round((book.readPages / book.totalPages) * 100) : (book.progress || 0);
+
+      return (
+        <div className="max-w-5xl mx-auto flex flex-col md:flex-row gap-6 md:gap-8 animate-fade-in-up">
+          <div className="w-full md:w-72 shrink-0 flex flex-col gap-4">
+            <button onClick={() => navigate(-1)} className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 mb-2 w-fit rounded p-1 -ml-1 focus:outline-none focus:ring-2 focus:ring-brand-500"><Icons.ArrowLeft className="w-4 h-4"/> Back</button>
+            <div className="bg-white p-4 md:p-5 rounded-xl border border-gray-100 shadow-sm text-center">
+              <img src={book.cover} alt={book.title} className="w-full aspect-[2/3] object-cover rounded-lg border border-gray-100 mb-4 shadow-sm" loading="lazy" />
+              {book.wantToBuy ? <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-md bg-yellow-100 text-yellow-700">Want to Buy</span> : <StatusBadge status={book.status} />}
+              <div className="flex items-center justify-center gap-1 mt-4 text-brand-500" aria-label={`Rating: ${book.rating} stars`}>
+                {[1,2,3,4,5].map(star => <Icons.Star key={star} className={`w-4 h-4 md:w-5 md:h-5 ${star <= book.rating ? 'fill-current' : 'text-gray-200'}`} aria-hidden="true" />)}
+              </div>
+              <div className="grid grid-cols-2 gap-2 mt-6">
+                <button onClick={() => navigate(`/books/${book.id}/edit`)} className="px-3 py-2 text-sm bg-gray-50 text-gray-700 rounded-lg hover:bg-gray-100 flex justify-center items-center gap-1.5 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300 transition-colors"><Icons.Edit2 className="w-3.5 h-3.5"/> Edit</button>
+                <button onClick={() => { if(window.confirm(`Delete "${book.title}"?`)) { deleteBook(book.id); addToast('Book deleted'); navigate('/books'); } }} className="px-3 py-2 text-sm bg-red-50 text-red-600 rounded-lg hover:bg-red-100 flex justify-center items-center gap-1.5 border border-red-100 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors"><Icons.Trash2 className="w-3.5 h-3.5"/> Delete</button>
+              </div>
+            </div>
+
+            {book.status === 'Currently Reading' && !book.wantToBuy && (
+              <div className="bg-white p-4 md:p-5 rounded-xl border border-gray-100 shadow-sm">
+                <h4 className="font-semibold text-sm text-gray-900 mb-3">Update Progress</h4>
+                <div className="flex items-center gap-2 mb-3">
+                  <input type="number" min="0" max={book.totalPages || undefined} value={readPages} onChange={(e) => setReadPages(e.target.value)} className="w-20 px-2 py-1.5 text-sm border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-brand-500/50 text-center" aria-label="Current page" />
+                  <span className="text-sm text-gray-500">/ {book.totalPages || '?'} p</span>
+                </div>
+                <div className="flex items-center gap-2 text-xs text-gray-400 font-medium mb-4">
+                  <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden"><div className="h-full bg-brand-500 rounded-full transition-all duration-300" style={{ width: `${currentProgress}%` }}></div></div>
+                  <span>{currentProgress}%</span>
+                </div>
+                <button onClick={handleUpdateProgress} className="w-full py-2 bg-brand-50 text-brand-600 text-sm font-medium rounded-lg hover:bg-brand-100 transition-colors focus:outline-none focus:ring-2 focus:ring-brand-500">Save Progress</button>
+              </div>
+            )}
+          </div>
+
+          <div className="flex-1 bg-white rounded-xl border border-gray-100 shadow-sm p-5 md:p-8 flex flex-col">
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-1">{book.title}</h1>
+            <p className="text-base md:text-lg text-gray-500 mb-6">{book.author}</p>
+
+            {bookCollections.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-8">
+                {bookCollections.map(c => <span key={c.id} className="text-xs font-medium px-2.5 py-1 bg-brand-50 text-brand-700 rounded-md border border-brand-100 flex items-center gap-1.5"><Icons.Hash className="w-3.5 h-3.5"/> {c.name}</span>)}
+              </div>
+            )}
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 mb-8 pb-8 border-b border-gray-100">
+              <div><p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-1">Pages</p><p className="font-semibold text-gray-900 text-sm">{book.totalPages || '-'}</p></div>
+              <div><p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-1">Ownership</p><p className="font-semibold text-gray-900 text-sm">{book.ownership}</p></div>
+              {book.wantToBuy ? (
+                <>
+                  <div><p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-1">Priority</p><p className="font-semibold text-gray-900 text-sm">{book.priority}</p></div>
+                  <div><p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-1">Price</p><p className="font-semibold text-gray-900 text-sm">{book.price ? `₹${book.price}` : '-'}</p></div>
+                </>
+              ) : (
+                 <>
+                   <div><p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-1">Genre</p><p className="font-semibold text-gray-900 text-sm truncate" title={book.genre}>{book.genre || '-'}</p></div>
+                   <div><p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-1">ISBN</p><p className="font-semibold text-gray-900 text-sm truncate" title={book.isbn}>{book.isbn || '-'}</p></div>
+                 </>
+              )}
+            </div>
+
+            <div className="flex-1">
+              <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-3">My Notes</h3>
+              <div className="bg-gray-50 rounded-lg p-4 md:p-5 h-full min-h-[150px] border border-gray-100">
+                 <p className="text-sm md:text-base text-gray-600 leading-relaxed whitespace-pre-wrap">{book.notes || <span className="italic text-gray-400">No notes added yet.</span>}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    // ==========================================
+    // 8. PROFILE & ABOUT VIEWS
     // ==========================================
     const ProfilePage = () => {
       const { books, profile } = useContext(BookContext); const navigate = useNavigate();
@@ -684,87 +1000,8 @@
     };
 
     // ==========================================
-    // 8. DATA/SETTINGS VIEWS
+    // 9. SETTINGS VIEW
     // ==========================================
-    const MyBooks = () => {
-      const { collectionId } = useParams(); const location = useLocation(); const navigate = useNavigate(); const addToast = useToast();
-      const { books, collections, renameCollection, deleteCollection } = useContext(BookContext);
-      
-      const searchParams = new URLSearchParams(location.search);
-      const [activeFilter, setActiveFilter] = useState(searchParams.get('filter') || 'All');
-      const [searchQuery, setSearchQuery] = useState('');
-      const [sortBy, setSortBy] = useState('Recently Added');
-      const [viewMode, setViewMode] = useState('grid');
-      
-      useEffect(() => { setActiveFilter(searchParams.get('filter') || 'All'); }, [location.search]);
-
-      const currentCollection = collectionId ? collections.find(c => c.id === collectionId) : null;
-      const filteredAndSortedBooks = useMemo(() => {
-        let res = [...books];
-        if (collectionId) res = res.filter(b => b.collections?.includes(collectionId));
-        if (activeFilter !== 'All') {
-          if (activeFilter === 'Owned') res = res.filter(b => b.ownership === 'Owned');
-          else if (activeFilter === 'Not Owned') res = res.filter(b => b.ownership === 'Not Owned');
-          else res = res.filter(b => b.status === activeFilter);
-        }
-        if (searchQuery) { const q = searchQuery.toLowerCase(); res = res.filter(b => b.title.toLowerCase().includes(q) || b.author.toLowerCase().includes(q)); }
-        res.sort((a, b) => {
-          if (sortBy === 'Recently Added') return new Date(b.dateAdded || 0) - new Date(a.dateAdded || 0);
-          if (sortBy === 'Title A-Z') return a.title.localeCompare(b.title);
-          if (sortBy === 'Author A-Z') return a.author.localeCompare(b.author);
-          if (sortBy === 'Rating') return (b.rating || 0) - (a.rating || 0); return 0;
-        });
-        return res;
-      }, [books, activeFilter, searchQuery, sortBy, collectionId]);
-
-      const handleFilterClick = (f) => { setActiveFilter(f); navigate(f === 'All' ? location.pathname : `${location.pathname}?filter=${f}`); };
-      const handleRename = () => { const n = window.prompt('Rename collection:', currentCollection?.name); if (n) { renameCollection(currentCollection.id, n); addToast('Collection renamed'); } };
-      const handleDelete = () => { if (window.confirm(`Delete "${currentCollection?.name}"? Books remain safe.`)) { deleteCollection(currentCollection.id); addToast('Collection deleted'); navigate('/books'); } };
-
-      return (
-        <div className="flex flex-col h-full gap-4 md:gap-6 animate-fade-in-up">
-          {currentCollection && (
-             <div className="flex flex-wrap items-center gap-3 bg-white p-3 md:p-4 rounded-xl border border-gray-100 shadow-sm">
-                <span className="text-gray-500 text-sm font-medium w-full sm:w-auto">Collection: {currentCollection.name}</span>
-                <button onClick={handleRename} className="text-sm px-3 py-1.5 bg-gray-50 hover:bg-gray-100 rounded-lg text-gray-700 flex items-center gap-1 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-500"><Icons.Edit2 className="w-3 h-3"/> Rename</button>
-                <button onClick={handleDelete} className="text-sm px-3 py-1.5 bg-red-50 hover:bg-red-100 rounded-lg text-red-600 flex items-center gap-1 border border-red-100 focus:outline-none focus:ring-2 focus:ring-red-500"><Icons.Trash2 className="w-3 h-3"/> Delete</button>
-             </div>
-          )}
-          <div className="bg-white p-3 md:p-4 rounded-xl border border-gray-100 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div className="flex items-center gap-2 overflow-x-auto custom-scrollbar pb-2 md:pb-0 -mx-3 px-3 md:mx-0 md:px-0">
-              {['All', 'Owned', 'Not Owned', 'Unread', 'Currently Reading', 'Finished', 'Dropped'].map(f => (
-                <button key={f} onClick={() => handleFilterClick(f)} className={`whitespace-nowrap px-3 md:px-4 py-1.5 rounded-full text-xs md:text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-brand-500/50 ${activeFilter === f ? 'bg-brand-50 text-brand-600 border border-brand-200' : 'bg-transparent text-gray-500 hover:bg-gray-50 border border-transparent'}`}>{f}</button>
-              ))}
-            </div>
-            <div className="flex flex-wrap md:flex-nowrap items-center gap-3">
-              <div className="relative w-full md:w-auto">
-                <Icons.Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                <input type="text" placeholder="Search..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full md:w-48 pl-9 pr-4 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/50" aria-label="Search books" />
-              </div>
-              <div className="flex items-center gap-2 w-full md:w-auto justify-between md:justify-start">
-                <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="py-1.5 px-3 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-brand-500/50" aria-label="Sort books">
-                  <option value="Recently Added">Recent</option><option value="Title A-Z">Title A-Z</option><option value="Author A-Z">Author A-Z</option><option value="Rating">Rating</option>
-                </select>
-                <div className="flex items-center bg-gray-50 p-1 rounded-lg border border-gray-200 shrink-0">
-                  <button onClick={() => setViewMode('grid')} className={`p-1 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-brand-500/50 ${viewMode === 'grid' ? 'bg-white shadow-sm text-brand-600' : 'text-gray-400'}`} aria-label="Grid view"><Icons.Grid className="w-4 h-4" /></button>
-                  <button onClick={() => setViewMode('list')} className={`p-1 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-brand-500/50 ${viewMode === 'list' ? 'bg-white shadow-sm text-brand-600' : 'text-gray-400'}`} aria-label="List view"><Icons.List className="w-4 h-4" /></button>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="flex-1 pb-4">
-            {filteredAndSortedBooks.length > 0 ? (
-              <div className={viewMode === 'grid' ? "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6" : "flex flex-col gap-3 md:gap-4"}>
-                {filteredAndSortedBooks.map(b => <BookCard key={b.id} book={b} viewMode={viewMode} />)}
-              </div>
-            ) : (
-              <EmptyState title="No books found" message="We couldn't find any books matching your current filters or search." icon={Icons.Library} actionText="Clear Filters" onAction={() => { handleFilterClick('All'); setSearchQuery(''); }} />
-            )}
-          </div>
-        </div>
-      );
-    };
-
     const SettingsPage = () => {
       const { exportLibrary, importLibrary, resetLibrary } = useContext(BookContext); 
       const addToast = useToast(); const navigate = useNavigate();
@@ -804,13 +1041,11 @@
                <p className="text-sm text-gray-500">Manage your application preferences and data.</p>
             </div>
 
-            {/* Profile Section */}
             <div>
               <SectionHeader icon={Icons.User} title="Profile" desc="Manage your personal details and reading goal." />
               <button onClick={() => navigate('/profile/edit')} className="py-2.5 px-4 bg-gray-50 hover:bg-gray-100 text-gray-700 text-sm font-medium border border-gray-200 rounded-lg flex items-center gap-2 transition-colors focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-1"><Icons.Edit2 className="w-4 h-4" /> Edit Profile</button>
             </div>
             
-            {/* Library Section */}
             <div className="pt-6 border-t border-gray-100">
               <SectionHeader icon={Icons.Library} title="Library Data" desc="Your data is stored locally in your browser. Backup your data to avoid losing it." />
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -829,7 +1064,6 @@
               </div>
             </div>
 
-            {/* Appearance Section */}
             <div className="pt-6 border-t border-gray-100">
               <SectionHeader icon={Icons.Palette} title="Appearance" desc="Customize how BookNest looks." />
               <div className="p-4 border border-gray-100 bg-gray-50 rounded-xl opacity-70 cursor-not-allowed">
@@ -837,7 +1071,6 @@
               </div>
             </div>
 
-            {/* About Section */}
             <div className="pt-6 border-t border-gray-100">
               <SectionHeader icon={Icons.Info} title="About BookNest" />
               <button onClick={() => navigate('/about')} className="py-2.5 px-4 bg-gray-50 hover:bg-gray-100 text-gray-700 text-sm font-medium border border-gray-200 rounded-lg flex items-center gap-2 transition-colors focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-1"><Icons.Info className="w-4 h-4" /> View About Page</button>
@@ -849,7 +1082,7 @@
     };
 
     // ==========================================
-    // 9. APP ENTRY
+    // 10. APP ENTRY
     // ==========================================
     function App() {
       return (
