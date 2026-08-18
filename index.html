@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BookNest - Phase 1 to 7</title>
+  <title>BookNest - Phase 1 to 8</title>
 
   <!-- Google Fonts: Inter -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
@@ -59,10 +59,10 @@
 
   <script type="text/babel" data-type="module">
     const { useState, useMemo, createContext, useContext, useEffect, useRef, useCallback } = React;
-    const { HashRouter, Routes, Route, NavLink, useLocation, Outlet, useNavigate, useParams } = window.ReactRouterDOM;
+    const { HashRouter, Routes, Route, NavLink, useLocation, Outlet, useNavigate, useParams, Link } = window.ReactRouterDOM;
 
     // ==========================================
-    // 1. ICONS
+    // 1. ICONS (Includes Phase 8 Additions)
     // ==========================================
     const Icon = ({ children, className = "w-5 h-5" }) => (
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">{children}</svg>
@@ -92,11 +92,15 @@
       Target: ({className}) => <Icon className={className}><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></Icon>,
       TrendingUp: ({className}) => <Icon className={className}><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></Icon>,
       ChevronRight: ({className}) => <Icon className={className}><polyline points="9 18 15 12 9 6"/></Icon>,
-      AlertCircle: ({className}) => <Icon className={className}><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></Icon>
+      AlertCircle: ({className}) => <Icon className={className}><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></Icon>,
+      User: ({className}) => <Icon className={className}><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></Icon>,
+      Info: ({className}) => <Icon className={className}><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></Icon>,
+      Palette: ({className}) => <Icon className={className}><circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></Icon>,
+      Github: ({className}) => <Icon className={className}><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></Icon>
     };
 
     // ==========================================
-    // 2. TOAST SYSTEM (Phase 7 - User Feedback)
+    // 2. TOAST SYSTEM
     // ==========================================
     const ToastContext = createContext();
     const ToastProvider = ({ children }) => {
@@ -126,9 +130,18 @@
     const useToast = () => useContext(ToastContext);
 
     // ==========================================
-    // 3. STORAGE & STATE MANAGEMENT
+    // 3. STORAGE & STATE MANAGEMENT (Phase 8 Additions)
     // ==========================================
     const STORAGE_KEY = 'booknest_app_data_v1';
+    
+    const defaultProfile = { 
+      name: 'Piyush Sahoo', 
+      avatar: '', 
+      bio: 'Avid reader and lifelong learner.', 
+      favoriteGenres: 'Psychology, Business, Tech',
+      readingGoal: 50
+    };
+
     const defaultCollections = [{ id: 'c1', name: 'AI and Technology' }, { id: 'c2', name: 'Psychology' }, { id: 'c3', name: 'Philosophy' }, { id: 'c4', name: 'Business' }, { id: 'c5', name: 'Fiction' }];
     const defaultBooks = [
       { id: '1', title: 'Atomic Habits', author: 'James Clear', cover: 'https://placehold.co/300x450/fdfbf7/333333?text=Atomic\nHabits', status: 'Finished', progress: 100, rating: 5, dateAdded: '2026-01-10T10:00:00.000Z', dateFinished: '2026-02-15T10:00:00.000Z', totalPages: 320, readPages: 320, genre: 'Self Help', isbn: '978-1847941831', ownership: 'Owned', wantToBuy: false, priority: 'Medium', price: 0, collections: ['c2', 'c4'], notes: 'Focus on tiny changes. Systems over goals.' },
@@ -141,17 +154,17 @@
       load() {
         try {
           const raw = localStorage.getItem(STORAGE_KEY);
-          if (!raw) return { books: defaultBooks, collections: defaultCollections, readingGoal: 50 };
+          if (!raw) return { books: defaultBooks, collections: defaultCollections, profile: defaultProfile };
           const parsed = JSON.parse(raw);
           return {
             books: Array.isArray(parsed.books) ? parsed.books : defaultBooks,
             collections: Array.isArray(parsed.collections) ? parsed.collections : defaultCollections,
-            readingGoal: typeof parsed.readingGoal === 'number' ? parsed.readingGoal : 50
+            profile: parsed.profile || { ...defaultProfile, readingGoal: parsed.readingGoal || 50 } // Migrates old readingGoal
           };
-        } catch (e) { return { books: defaultBooks, collections: defaultCollections, readingGoal: 50 }; }
+        } catch (e) { return { books: defaultBooks, collections: defaultCollections, profile: defaultProfile }; }
       },
       save(data) { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch (e) { console.error(e); } },
-      reset() { localStorage.removeItem(STORAGE_KEY); return { books: defaultBooks, collections: defaultCollections, readingGoal: 50 }; }
+      reset() { localStorage.removeItem(STORAGE_KEY); return { books: defaultBooks, collections: defaultCollections, profile: defaultProfile }; }
     };
 
     const BookContext = createContext();
@@ -161,21 +174,21 @@
 
       return (
         <BookContext.Provider value={{ 
-          books: data.books, collections: data.collections, readingGoal: data.readingGoal,
+          books: data.books, collections: data.collections, profile: data.profile,
+          updateProfile: (newProfile) => setData(p => ({ ...p, profile: { ...p.profile, ...newProfile } })),
           addBook: (bk) => setData(p => ({ ...p, books: [...p.books, { ...bk, id: Date.now().toString(), dateAdded: new Date().toISOString() }] })),
           updateBook: (bk) => setData(p => ({ ...p, books: p.books.map(b => b.id === bk.id ? bk : b) })),
           deleteBook: (id) => setData(p => ({ ...p, books: p.books.filter(b => b.id !== id) })),
           addCollection: (name) => { if (name.trim()) setData(p => ({ ...p, collections: [...p.collections, { id: 'c' + Date.now(), name: name.trim() }] })); },
           renameCollection: (id, name) => { if (name.trim()) setData(p => ({ ...p, collections: p.collections.map(c => c.id === id ? { ...c, name: name.trim() } : c) })); },
           deleteCollection: (id) => setData(p => ({ collections: p.collections.filter(c => c.id !== id), books: p.books.map(b => ({ ...b, collections: (b.collections || []).filter(cid => cid !== id) })) })),
-          setReadingGoal: (goal) => setData(p => ({ ...p, readingGoal: goal })),
           exportLibrary: () => {
             const a = document.createElement('a');
             a.href = `data:text/json;charset=utf-8,${encodeURIComponent(JSON.stringify(data, null, 2))}`;
             a.download = `booknest-backup-${new Date().toISOString().slice(0, 10)}.json`;
             document.body.appendChild(a); a.click(); a.remove();
           },
-          importLibrary: (d) => { if (!d || !Array.isArray(d.books) || !Array.isArray(d.collections)) throw new Error("Invalid format."); setData({ ...d, readingGoal: d.readingGoal || 50 }); },
+          importLibrary: (d) => { if (!d || !Array.isArray(d.books) || !Array.isArray(d.collections)) throw new Error("Invalid format."); setData({ ...d, profile: d.profile || defaultProfile }); },
           resetLibrary: () => setData(StorageService.reset())
         }}>
           {children}
@@ -184,7 +197,7 @@
     };
 
     // ==========================================
-    // 4. LAYOUT & RESPONSIVE NAVIGATION
+    // 4. LAYOUT, NAVIGATION & FOOTER
     // ==========================================
     const LayoutContext = createContext();
     
@@ -204,20 +217,13 @@
 
       return (
         <>
-          {/* Mobile Overlay */}
-          {isMobileMenuOpen && (
-            <div className="fixed inset-0 bg-gray-900/50 z-40 md:hidden transition-opacity" onClick={closeMenu} aria-hidden="true" />
-          )}
-
-          {/* Sidebar */}
+          {isMobileMenuOpen && <div className="fixed inset-0 bg-gray-900/50 z-40 md:hidden transition-opacity" onClick={closeMenu} aria-hidden="true" />}
           <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-100 flex flex-col transform transition-transform duration-300 md:relative md:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
             <div className="h-20 flex items-center justify-between px-6 shrink-0">
-              <div className="flex items-center gap-2 text-brand-600 font-bold text-xl">
+              <Link to="/" onClick={closeMenu} className="flex items-center gap-2 text-brand-600 font-bold text-xl hover:opacity-80 transition-opacity">
                 <Icons.BookOpen className="w-6 h-6 fill-current" /><span>BookNest</span>
-              </div>
-              <button onClick={closeMenu} className="md:hidden text-gray-400 hover:text-gray-900 p-1 rounded focus:outline-none focus:ring-2 focus:ring-brand-500" aria-label="Close menu">
-                <Icons.X className="w-5 h-5" />
-              </button>
+              </Link>
+              <button onClick={closeMenu} className="md:hidden text-gray-400 hover:text-gray-900 p-1 rounded focus:outline-none focus:ring-2 focus:ring-brand-500" aria-label="Close menu"><Icons.X className="w-5 h-5" /></button>
             </div>
             
             <div className="flex-1 overflow-y-auto px-4 py-2 space-y-8 custom-scrollbar">
@@ -225,7 +231,9 @@
                 <p className="text-xs font-semibold text-gray-400 mb-3 px-4 tracking-wider">MAIN</p>
                 <nav className="flex flex-col gap-1">
                   <NavLink to="/" onClick={closeMenu} className={navClass}><Icons.LayoutDashboard className="w-4 h-4" />Dashboard</NavLink>
-                  <NavLink to="/books" onClick={closeMenu} className={navClass}><Icons.Library className="w-4 h-4" />My Books</NavLink>
+                  <NavLink to="/books" end onClick={closeMenu} className={navClass}><Icons.Library className="w-4 h-4" />My Books</NavLink>
+                  <NavLink to="/books?filter=Currently%20Reading" onClick={closeMenu} className={navClass}><Icons.BookOpen className="w-4 h-4" />Currently Reading</NavLink>
+                  <NavLink to="/books?filter=Finished" onClick={closeMenu} className={navClass}><Icons.CheckCircle2 className="w-4 h-4" />Finished</NavLink>
                   <NavLink to="/to-buy" onClick={closeMenu} className={navClass}><Icons.ShoppingCart className="w-4 h-4" />To Buy</NavLink>
                 </nav>
               </div>
@@ -238,7 +246,11 @@
               </div>
             </div>
             <div className="p-4 border-t border-gray-100 shrink-0">
-              <nav className="flex flex-col gap-1"><NavLink to="/settings" onClick={closeMenu} className={navClass}><Icons.Settings className="w-4 h-4" />Settings</NavLink></nav>
+              <nav className="flex flex-col gap-1">
+                <NavLink to="/profile" onClick={closeMenu} className={navClass}><Icons.User className="w-4 h-4" />Profile</NavLink>
+                <NavLink to="/settings" onClick={closeMenu} className={navClass}><Icons.Settings className="w-4 h-4" />Settings</NavLink>
+                <NavLink to="/about" onClick={closeMenu} className={navClass}><Icons.Info className="w-4 h-4" />About</NavLink>
+              </nav>
             </div>
           </aside>
         </>
@@ -247,20 +259,25 @@
 
     function Topbar() {
       const location = useLocation(); const navigate = useNavigate();
-      const { collections } = useContext(BookContext);
+      const { collections, profile } = useContext(BookContext);
       const { setIsMobileMenuOpen } = useContext(LayoutContext);
 
       const getPageTitle = () => {
         if (location.pathname === '/') return 'Dashboard';
         if (location.pathname === '/books') return 'My Books';
         if (location.pathname === '/books/add') return 'Add Book';
-        if (location.pathname.includes('/edit')) return 'Edit Book';
+        if (location.pathname.includes('/edit')) return 'Edit';
         if (location.pathname.startsWith('/books/')) return 'Book Details';
         if (location.pathname === '/to-buy') return 'To Buy';
         if (location.pathname === '/settings') return 'Settings';
+        if (location.pathname === '/profile') return 'Profile';
+        if (location.pathname === '/profile/edit') return 'Edit Profile';
+        if (location.pathname === '/about') return 'About';
         if (location.pathname.startsWith('/collections/')) { const id = location.pathname.split('/')[2]; return collections.find(c => c.id === id)?.name || 'Collection'; }
         return 'BookNest';
       };
+
+      const initials = profile.name.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase();
 
       return (
         <header className="h-16 md:h-20 px-4 md:px-8 flex items-center justify-between bg-background sticky top-0 z-30 shrink-0">
@@ -271,11 +288,25 @@
           <div className="flex items-center gap-3 md:gap-6">
             <button onClick={() => navigate('/books/add')} className="hidden sm:flex items-center gap-2 bg-brand-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-brand-700 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2"><Icons.Plus className="w-4 h-4" /> Add Book</button>
             <button onClick={() => navigate('/books/add')} className="sm:hidden flex items-center justify-center w-9 h-9 bg-brand-600 text-white rounded-full hover:bg-brand-700 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2" aria-label="Add Book"><Icons.Plus className="w-5 h-5" /></button>
-            <div className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-brand-600 text-white flex items-center justify-center text-xs md:text-sm font-semibold cursor-pointer shadow-md shadow-brand-500/30 shrink-0" aria-label="User Profile">PS</div>
+            <div onClick={() => navigate('/profile')} className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-brand-600 text-white flex items-center justify-center text-xs md:text-sm font-semibold cursor-pointer shadow-md shadow-brand-500/30 shrink-0 overflow-hidden hover:opacity-90 transition-opacity" title={profile.name} aria-label="User Profile">
+               {profile.avatar ? <img src={profile.avatar} alt={profile.name} className="w-full h-full object-cover" /> : initials}
+            </div>
           </div>
         </header>
       );
     }
+
+    const Footer = () => (
+      <footer className="mt-auto pt-8 pb-4 w-full flex flex-col md:flex-row items-center justify-between text-xs text-gray-400 gap-4">
+        <p>© 2026 Piyush Sahoo · BookNest</p>
+        <div className="flex flex-wrap items-center justify-center gap-4">
+          <Link to="/about" className="hover:text-gray-900 transition-colors">About</Link>
+          <Link to="/profile" className="hover:text-gray-900 transition-colors">Profile</Link>
+          <Link to="/settings" className="hover:text-gray-900 transition-colors">Settings</Link>
+          <a href="https://github.com/piyushsahoo/booknest" target="_blank" rel="noopener noreferrer" className="hover:text-gray-900 transition-colors">GitHub</a>
+        </div>
+      </footer>
+    );
 
     function MainLayout() {
       const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -285,8 +316,9 @@
             <Sidebar />
             <div className="flex-1 flex flex-col min-w-0 h-full">
               <Topbar />
-              <main className="flex-1 overflow-y-auto px-4 md:px-8 pb-8 custom-scrollbar">
-                <div className="max-w-7xl mx-auto w-full"><Outlet /></div>
+              <main className="flex-1 overflow-y-auto px-4 md:px-8 pb-4 custom-scrollbar flex flex-col">
+                <div className="max-w-7xl mx-auto w-full flex-1"><Outlet /></div>
+                <Footer />
               </main>
             </div>
           </div>
@@ -315,11 +347,8 @@
     }
 
     const BookCard = ({ book, viewMode }) => {
-      const { deleteBook } = useContext(BookContext); 
-      const navigate = useNavigate();
-      const addToast = useToast();
-      const [menuOpen, setMenuOpen] = useState(false); 
-      const menuRef = useRef(null);
+      const { deleteBook } = useContext(BookContext); const navigate = useNavigate(); const addToast = useToast();
+      const [menuOpen, setMenuOpen] = useState(false); const menuRef = useRef(null);
       useOutsideClick(menuRef, () => setMenuOpen(false));
 
       const ActionMenu = () => (
@@ -343,14 +372,8 @@
             <div className="flex-1 min-w-0 pr-10">
               <h3 className="font-semibold text-gray-900 text-sm md:text-base truncate" title={book.title}>{book.title}</h3>
               <p className="text-xs md:text-sm text-gray-500 truncate">{book.author}</p>
-              
-              {/* Mobile quick status */}
-              <div className="md:hidden mt-1">
-                 {book.wantToBuy ? <span className="text-[10px] font-bold uppercase px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded-md">Want to Buy</span> : <StatusBadge status={book.status} />}
-              </div>
+              <div className="md:hidden mt-1">{book.wantToBuy ? <span className="text-[10px] font-bold uppercase px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded-md">Want to Buy</span> : <StatusBadge status={book.status} />}</div>
             </div>
-            
-            {/* Desktop extended stats */}
             <div className="hidden md:flex items-center gap-6 pr-8">
               {book.wantToBuy ? <span className="text-[10px] font-bold uppercase px-2 py-1 bg-yellow-100 text-yellow-700 rounded-md">Want to Buy</span> : <StatusBadge status={book.status} />}
               {book.status === 'Currently Reading' && !book.wantToBuy && (
@@ -373,9 +396,7 @@
             <h3 className="font-semibold text-gray-900 text-xs md:text-sm leading-tight mb-1 line-clamp-2" title={book.title}>{book.title}</h3>
             <p className="text-[10px] md:text-xs text-gray-500 mb-2 truncate">{book.author}</p>
             <div className="mt-auto">
-              <div className="flex items-center justify-between mb-1.5">
-                {book.wantToBuy ? <span className="text-[9px] md:text-[10px] font-bold uppercase px-1.5 py-0.5 bg-yellow-100 text-yellow-700 rounded flex-wrap">To Buy</span> : <StatusBadge status={book.status} />}
-              </div>
+              <div className="flex items-center justify-between mb-1.5">{book.wantToBuy ? <span className="text-[9px] md:text-[10px] font-bold uppercase px-1.5 py-0.5 bg-yellow-100 text-yellow-700 rounded flex-wrap">To Buy</span> : <StatusBadge status={book.status} />}</div>
               {book.status === 'Currently Reading' && !book.wantToBuy && (
                 <div className="flex items-center gap-1.5 text-[9px] md:text-[10px] text-gray-400 font-medium">
                   <div className="flex-1 h-1 bg-gray-100 rounded-full overflow-hidden"><div className="h-full bg-brand-500 rounded-full" style={{ width: `${progress}%` }}></div></div>
@@ -390,16 +411,10 @@
 
     const EmptyState = ({ title, message, icon: IconCmp, actionText, onAction }) => (
       <div className="h-full min-h-[300px] flex flex-col items-center justify-center text-center bg-white rounded-xl border border-gray-100 border-dashed p-6 md:p-8 animate-fade-in-up">
-        <div className="w-14 h-14 md:w-16 md:h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4 text-gray-400">
-          <IconCmp className="w-6 h-6 md:w-8 md:h-8" />
-        </div>
+        <div className="w-14 h-14 md:w-16 md:h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4 text-gray-400"><IconCmp className="w-6 h-6 md:w-8 md:h-8" /></div>
         <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-1">{title}</h3>
         <p className="text-gray-500 text-sm max-w-sm mb-6 px-4">{message}</p>
-        {actionText && onAction && (
-          <button onClick={onAction} className="px-4 py-2 bg-brand-50 text-brand-600 font-medium rounded-lg text-sm hover:bg-brand-100 transition-colors focus:outline-none focus:ring-2 focus:ring-brand-500">
-            {actionText}
-          </button>
-        )}
+        {actionText && onAction && <button onClick={onAction} className="px-4 py-2 bg-brand-50 text-brand-600 font-medium rounded-lg text-sm hover:bg-brand-100 transition-colors focus:outline-none focus:ring-2 focus:ring-brand-500">{actionText}</button>}
       </div>
     );
 
@@ -407,12 +422,10 @@
     // 6. DASHBOARD
     // ==========================================
     const Dashboard = () => {
-      const { books, readingGoal, setReadingGoal } = useContext(BookContext);
-      const navigate = useNavigate(); const addToast = useToast();
+      const { books, profile } = useContext(BookContext); const navigate = useNavigate();
 
       const stats = useMemo(() => {
-        const thisYear = new Date().getFullYear();
-        const thisMonth = new Date().getMonth();
+        const thisYear = new Date().getFullYear(); const thisMonth = new Date().getMonth();
         const libraryBooks = books.filter(b => !b.wantToBuy);
         const owned = books.filter(b => b.ownership === 'Owned');
         const unread = libraryBooks.filter(b => b.status === 'Unread');
@@ -431,20 +444,15 @@
         return { total: libraryBooks.length, owned: owned.length, unread: unread.length, reading: currentlyReading, finished: finishedAll, toBuy: books.filter(b => b.wantToBuy).length, finishedThisYearCount: finishedThisYear.length, finishedThisMonthCount: finishedThisMonth.length, totalPages, avgRating, journey, currentYear: thisYear };
       }, [books]);
 
-      const goalProgress = readingGoal > 0 ? Math.min(Math.round((stats.finishedThisYearCount / readingGoal) * 100), 100) : 0;
-      
-      const handleEditGoal = () => {
-        const newGoal = parseInt(window.prompt('Enter your yearly reading goal (number of books):', readingGoal), 10);
-        if (!isNaN(newGoal) && newGoal > 0) { setReadingGoal(newGoal); addToast('Goal updated'); }
-      };
-
+      const goalProgress = profile.readingGoal > 0 ? Math.min(Math.round((stats.finishedThisYearCount / profile.readingGoal) * 100), 100) : 0;
+      const firstName = profile.name.split(' ')[0] || 'Reader';
       const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
       const maxJourney = Math.max(...stats.journey, 5);
 
       return (
         <div className="space-y-6 md:space-y-8 animate-fade-in-up">
           <div>
-            <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-4 md:mb-6">Good morning! 👋</h2>
+            <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-4 md:mb-6">Good morning, {firstName}! 👋</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4">
               {[ { label: 'Total Books', value: stats.total, color: 'text-gray-900' }, { label: 'Owned', value: stats.owned, color: 'text-gray-900' }, { label: 'Unread', value: stats.unread, color: 'text-purple-600' }, { label: 'Reading', value: stats.reading.length, color: 'text-blue-600' }, { label: 'Finished', value: stats.finished.length, color: 'text-green-600' }, { label: 'To Buy', value: stats.toBuy, color: 'text-yellow-600' } ].map((s, i) => (
                 <div key={i} className="bg-white p-3 md:p-4 rounded-xl border border-gray-100 shadow-sm flex flex-col justify-center items-center text-center hover:shadow-md transition-shadow">
@@ -483,11 +491,11 @@
             </div>
 
             <div className="space-y-4">
-              <div className="flex items-center justify-between"><h3 className="text-base md:text-lg font-bold text-gray-900 flex items-center gap-2"><Icons.Target className="w-5 h-5 text-brand-600" /> Reading Goal {stats.currentYear}</h3><button onClick={handleEditGoal} className="text-gray-400 hover:text-gray-900 p-1" aria-label="Edit Goal"><Icons.Edit2 className="w-4 h-4"/></button></div>
+              <div className="flex items-center justify-between"><h3 className="text-base md:text-lg font-bold text-gray-900 flex items-center gap-2"><Icons.Target className="w-5 h-5 text-brand-600" /> Reading Goal {stats.currentYear}</h3></div>
               <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex flex-col items-center justify-center text-center h-[176px]">
-                <div className="relative w-24 h-24 md:w-28 md:h-28 flex items-center justify-center mb-2">
+                <div className="relative w-24 h-24 md:w-28 md:h-28 flex items-center justify-center mb-2 cursor-pointer group" onClick={() => navigate('/profile/edit')} title="Edit Reading Goal">
                   <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="none" stroke="#f3f4f6" strokeWidth="8" /><circle cx="50" cy="50" r="42" fill="none" stroke="#a855f7" strokeWidth="8" strokeDasharray="264" strokeDashoffset={264 - (goalProgress/100)*264} strokeLinecap="round" className="transition-all duration-1000 ease-out" /></svg>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center"><span className="text-xl md:text-2xl font-bold text-gray-900">{stats.finishedThisYearCount}</span><span className="text-[9px] md:text-[10px] font-bold text-gray-400 uppercase tracking-widest border-t border-gray-200 pt-1 mt-1">/ {readingGoal}</span></div>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center group-hover:scale-105 transition-transform"><span className="text-xl md:text-2xl font-bold text-gray-900">{stats.finishedThisYearCount}</span><span className="text-[9px] md:text-[10px] font-bold text-gray-400 uppercase tracking-widest border-t border-gray-200 pt-1 mt-1">/ {profile.readingGoal}</span></div>
                 </div>
                 <p className="text-xs text-gray-500 font-medium">{goalProgress >= 100 ? "Goal Achieved! 🎉" : "You're doing great!"}</p>
               </div>
@@ -525,7 +533,7 @@
                     <div className="flex items-end justify-between h-16 md:h-20 gap-0.5 md:gap-1">
                       {stats.journey.map((val, idx) => (
                         <div key={idx} className="flex flex-col items-center flex-1 group relative">
-                          <div className="w-full bg-brand-100 rounded-t-sm" style={{ height: `${(val / maxJourney) * 100}%`, minHeight: val > 0 ? '4px' : '0' }}></div>
+                          <div className="w-full bg-brand-100 rounded-t-sm transition-all duration-500" style={{ height: `${(val / maxJourney) * 100}%`, minHeight: val > 0 ? '4px' : '0' }}></div>
                           <span className="text-[7px] md:text-[8px] text-gray-400 font-medium mt-1">{months[idx]}</span>
                           {val > 0 && <div className="absolute bottom-full mb-1 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-800 text-white text-[9px] md:text-[10px] px-1.5 py-0.5 rounded pointer-events-none">{val}</div>}
                         </div>
@@ -540,7 +548,136 @@
     };
 
     // ==========================================
-    // 7. VIEWS (Books, Form, Details, Settings)
+    // 7. PROFILE & ABOUT VIEWS (Phase 8 Additions)
+    // ==========================================
+    const ProfilePage = () => {
+      const { books, profile } = useContext(BookContext); const navigate = useNavigate();
+      
+      const stats = useMemo(() => {
+        const library = books.filter(b => !b.wantToBuy);
+        const thisYear = new Date().getFullYear();
+        const finishedAll = library.filter(b => b.status === 'Finished');
+        const finishedThisYearCount = finishedAll.filter(b => new Date(b.dateFinished || b.dateAdded).getFullYear() === thisYear).length;
+        return {
+          total: library.length, owned: books.filter(b => b.ownership === 'Owned').length, 
+          reading: library.filter(b => b.status === 'Currently Reading').length, 
+          finished: finishedAll.length, toBuy: books.filter(b => b.wantToBuy).length, finishedThisYearCount
+        };
+      }, [books]);
+
+      const goalProgress = profile.readingGoal > 0 ? Math.min(Math.round((stats.finishedThisYearCount / profile.readingGoal) * 100), 100) : 0;
+      const initials = profile.name.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase();
+
+      return (
+        <div className="max-w-4xl mx-auto space-y-6 md:space-y-8 animate-fade-in-up">
+          <div className="bg-white p-6 md:p-10 rounded-xl border border-gray-100 shadow-sm flex flex-col md:flex-row items-center md:items-start gap-6 md:gap-10 relative">
+            <button onClick={() => navigate('/profile/edit')} className="absolute top-4 right-4 md:top-6 md:right-6 text-sm px-3 py-1.5 bg-gray-50 hover:bg-gray-100 rounded-lg text-gray-700 flex items-center gap-1.5 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-500 transition-colors"><Icons.Edit2 className="w-3.5 h-3.5"/> Edit</button>
+            <div className="w-24 h-24 md:w-32 md:h-32 rounded-full bg-brand-100 text-brand-600 flex items-center justify-center text-3xl md:text-4xl font-bold shrink-0 overflow-hidden border-4 border-white shadow-md">
+              {profile.avatar ? <img src={profile.avatar} alt={profile.name} className="w-full h-full object-cover" /> : initials}
+            </div>
+            <div className="flex-1 text-center md:text-left mt-2 md:mt-0">
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">{profile.name}</h1>
+              <p className="text-sm md:text-base text-gray-500 mb-4 max-w-lg">{profile.bio || "No bio provided."}</p>
+              {profile.favoriteGenres && (
+                <div className="flex flex-wrap items-center justify-center md:justify-start gap-2">
+                  <span className="text-xs text-gray-400 font-medium uppercase mr-1">Favorites:</span>
+                  {profile.favoriteGenres.split(',').map(g => g.trim()).filter(Boolean).map(g => (
+                    <span key={g} className="text-xs px-2.5 py-1 bg-brand-50 text-brand-700 rounded-md border border-brand-100">{g}</span>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4">
+            {[ { label: 'Total Books', value: stats.total }, { label: 'Owned', value: stats.owned }, { label: 'Reading', value: stats.reading }, { label: 'Finished', value: stats.finished }, { label: 'To Buy', value: stats.toBuy } ].map((s, i) => (
+              <div key={i} className="bg-white p-4 md:p-5 rounded-xl border border-gray-100 shadow-sm flex flex-col justify-center items-center text-center">
+                <p className="text-[10px] md:text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">{s.label}</p>
+                <p className="text-xl md:text-2xl font-bold text-gray-900">{s.value}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="bg-white p-6 md:p-8 rounded-xl border border-gray-100 shadow-sm flex flex-col md:flex-row items-center gap-6 md:gap-8 justify-between">
+            <div className="flex-1">
+              <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-2 flex items-center gap-2"><Icons.Target className="w-5 h-5 text-brand-600" /> Yearly Reading Goal</h3>
+              <p className="text-sm text-gray-500 mb-4 max-w-sm">You have finished {stats.finishedThisYearCount} books this year out of your goal of {profile.readingGoal}. Keep it up!</p>
+              <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden mb-2 max-w-md"><div className="h-full bg-brand-500 rounded-full transition-all duration-1000" style={{ width: `${goalProgress}%` }}></div></div>
+              <p className="text-xs text-gray-400 font-medium">{goalProgress}% completed</p>
+            </div>
+            <div className="w-24 h-24 md:w-32 md:h-32 relative flex items-center justify-center shrink-0">
+               <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" fill="none" stroke="#f3f4f6" strokeWidth="12" /><circle cx="50" cy="50" r="44" fill="none" stroke="#a855f7" strokeWidth="12" strokeDasharray="276" strokeDashoffset={276 - (goalProgress/100)*276} strokeLinecap="round" className="transition-all duration-1000 ease-out" /></svg>
+               <span className="absolute text-xl md:text-2xl font-bold text-gray-900">{stats.finishedThisYearCount}</span>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    const EditProfilePage = () => {
+      const { profile, updateProfile } = useContext(BookContext); const navigate = useNavigate(); const addToast = useToast();
+      const [formData, setFormData] = useState({ name: profile.name || '', avatar: profile.avatar || '', bio: profile.bio || '', favoriteGenres: profile.favoriteGenres || '', readingGoal: profile.readingGoal || 50 });
+
+      const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+      
+      const handleSubmit = (e) => {
+        e.preventDefault();
+        const newGoal = parseInt(formData.readingGoal, 10);
+        updateProfile({ ...formData, readingGoal: isNaN(newGoal) || newGoal < 1 ? 1 : newGoal });
+        addToast('Profile updated successfully');
+        navigate('/profile');
+      };
+
+      const inputClass = "w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500/50 bg-white text-sm transition-shadow";
+      const labelClass = "block text-xs font-medium text-gray-600 mb-1.5";
+
+      return (
+        <div className="max-w-2xl mx-auto bg-white p-6 md:p-8 rounded-xl border border-gray-100 shadow-sm animate-fade-in-up">
+          <button onClick={() => navigate(-1)} className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 mb-4 focus:outline-none focus:ring-2 focus:ring-brand-500 rounded p-1 -ml-1"><Icons.ArrowLeft className="w-4 h-4"/> Back</button>
+          <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-6">Edit Profile</h2>
+          
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div><label className={labelClass}>Name <span className="text-red-500">*</span></label><input required type="text" name="name" value={formData.name} onChange={handleChange} className={inputClass} /></div>
+            <div><label className={labelClass}>Avatar Image URL</label><input type="url" name="avatar" value={formData.avatar} onChange={handleChange} className={inputClass} placeholder="https://..." /></div>
+            <div><label className={labelClass}>Short Bio</label><textarea name="bio" rows="3" value={formData.bio} onChange={handleChange} className={`${inputClass} resize-none`} placeholder="Tell us about your reading journey..."></textarea></div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div><label className={labelClass}>Favorite Genres (comma separated)</label><input type="text" name="favoriteGenres" value={formData.favoriteGenres} onChange={handleChange} className={inputClass} placeholder="Sci-Fi, Fantasy, History" /></div>
+              <div><label className={labelClass}>Yearly Reading Goal</label><input type="number" min="1" name="readingGoal" value={formData.readingGoal} onChange={handleChange} className={inputClass} /></div>
+            </div>
+            <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
+              <button type="button" onClick={() => navigate(-1)} className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-300 transition-colors">Cancel</button>
+              <button type="submit" className="px-5 py-2 text-sm font-medium text-white bg-brand-600 hover:bg-brand-700 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 transition-colors">Save Profile</button>
+            </div>
+          </form>
+        </div>
+      );
+    };
+
+    const AboutPage = () => {
+      return (
+        <div className="max-w-2xl mx-auto space-y-6 animate-fade-in-up">
+          <div className="bg-white p-8 md:p-12 rounded-xl border border-gray-100 shadow-sm text-center flex flex-col items-center">
+            <div className="w-16 h-16 bg-brand-50 rounded-2xl flex items-center justify-center text-brand-600 mb-6 shadow-sm"><Icons.BookOpen className="w-8 h-8 fill-current" /></div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">BookNest</h1>
+            <p className="text-gray-500 mb-6 max-w-sm">A minimal, fully local, personal book-management and reading-tracking application.</p>
+            <div className="flex items-center gap-2 text-sm font-medium text-gray-600 bg-gray-50 px-4 py-1.5 rounded-full border border-gray-100 mb-8">Version 1.0.0</div>
+            
+            <div className="w-full pt-8 border-t border-gray-100 text-left space-y-6">
+              <div><h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-3">Developer</h3><p className="text-gray-600 flex items-center gap-2"><Icons.User className="w-4 h-4 text-gray-400"/> Piyush Sahoo</p></div>
+              <div><h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-3">Technologies</h3>
+                <div className="flex flex-wrap gap-2">
+                  {['React 18', 'React Router', 'Tailwind CSS', 'Lucide Icons', 'Local Storage'].map(t => <span key={t} className="text-xs px-2.5 py-1 bg-gray-100 text-gray-600 rounded-md border border-gray-200">{t}</span>)}
+                </div>
+              </div>
+              <div><h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-3">Links</h3><a href="https://github.com/piyushsahoo/booknest" target="_blank" rel="noopener noreferrer" className="text-brand-600 hover:text-brand-700 font-medium flex items-center gap-2 w-fit focus:outline-none focus:ring-2 focus:ring-brand-500 rounded"><Icons.Github className="w-4 h-4"/> GitHub Repository</a></div>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    // ==========================================
+    // 8. DATA/SETTINGS VIEWS
     // ==========================================
     const MyBooks = () => {
       const { collectionId } = useParams(); const location = useLocation(); const navigate = useNavigate(); const addToast = useToast();
@@ -563,9 +700,7 @@
           else if (activeFilter === 'Not Owned') res = res.filter(b => b.ownership === 'Not Owned');
           else res = res.filter(b => b.status === activeFilter);
         }
-        if (searchQuery) {
-          const q = searchQuery.toLowerCase(); res = res.filter(b => b.title.toLowerCase().includes(q) || b.author.toLowerCase().includes(q));
-        }
+        if (searchQuery) { const q = searchQuery.toLowerCase(); res = res.filter(b => b.title.toLowerCase().includes(q) || b.author.toLowerCase().includes(q)); }
         res.sort((a, b) => {
           if (sortBy === 'Recently Added') return new Date(b.dateAdded || 0) - new Date(a.dateAdded || 0);
           if (sortBy === 'Title A-Z') return a.title.localeCompare(b.title);
@@ -623,243 +758,9 @@
       );
     };
 
-    const ToBuyPage = () => {
-      const { books, updateBook } = useContext(BookContext); const navigate = useNavigate(); const addToast = useToast();
-      const wishList = useMemo(() => books.filter(b => b.wantToBuy), [books]);
-
-      const handlePurchase = (book) => {
-        updateBook({ ...book, wantToBuy: false, ownership: 'Owned', status: book.status || 'Unread', dateAdded: new Date().toISOString() });
-        addToast(`Marked "${book.title}" as purchased!`);
-      };
-
-      if (wishList.length === 0) return <EmptyState title="Your wishlist is empty" message="Books marked as 'Want to Buy' will appear here." icon={Icons.ShoppingCart} actionText="Add a Book" onAction={() => navigate('/books/add')} />;
-
-      const getPrioColor = (p) => p === 'High' ? 'text-red-600 bg-red-50 border-red-200' : p === 'Medium' ? 'text-orange-600 bg-orange-50 border-orange-200' : 'text-green-600 bg-green-50 border-green-200';
-
-      return (
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden animate-fade-in-up">
-          <div className="overflow-x-auto custom-scrollbar">
-            <table className="w-full text-left border-collapse min-w-[600px]">
-              <thead>
-                <tr className="bg-gray-50 border-b border-gray-100 text-xs font-semibold text-gray-500 uppercase tracking-wider"><th className="p-3 md:p-4 pl-4 md:pl-6">Book Details</th><th className="p-3 md:p-4">Priority</th><th className="p-3 md:p-4">Price</th><th className="p-3 md:p-4 pr-4 md:pr-6 text-right">Actions</th></tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {wishList.map(b => (
-                  <tr key={b.id} className="hover:bg-gray-50/50 transition-colors">
-                    <td className="p-3 md:p-4 pl-4 md:pl-6 flex items-center gap-3 md:gap-4 cursor-pointer" onClick={() => navigate(`/books/${b.id}`)}>
-                      <img src={b.cover} alt={b.title} className="w-10 h-14 md:w-12 md:h-16 object-cover rounded shadow-sm border border-gray-100" loading="lazy" />
-                      <div><h4 className="font-semibold text-gray-900 text-sm md:text-base line-clamp-1">{b.title}</h4><p className="text-xs md:text-sm text-gray-500 line-clamp-1">{b.author}</p></div>
-                    </td>
-                    <td className="p-3 md:p-4"><span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] md:text-xs font-medium border whitespace-nowrap ${getPrioColor(b.priority)}`}>{b.priority}</span></td>
-                    <td className="p-3 md:p-4 font-medium text-gray-900 text-sm">{b.price > 0 ? `₹${b.price}` : '-'}</td>
-                    <td className="p-3 md:p-4 pr-4 md:pr-6 text-right space-x-2 md:space-x-3 whitespace-nowrap">
-                      <button onClick={() => handlePurchase(b)} className="text-xs md:text-sm px-2.5 py-1.5 bg-brand-50 hover:bg-brand-100 text-brand-600 font-medium rounded border border-brand-200 transition-colors focus:outline-none focus:ring-2 focus:ring-brand-500">Purchased</button>
-                      <button onClick={() => navigate(`/books/${b.id}/edit`)} className="text-gray-400 hover:text-gray-900 p-1 rounded focus:outline-none focus:ring-2 focus:ring-brand-500" aria-label="Edit"><Icons.Edit2 className="w-4 h-4 inline"/></button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      );
-    };
-
-    const BookForm = () => {
-      const { id } = useParams(); const navigate = useNavigate(); const addToast = useToast();
-      const { books, collections, addBook, updateBook } = useContext(BookContext);
-      const existingBook = id ? books.find(b => b.id === id) : null;
-
-      const [formData, setFormData] = useState(existingBook || { title: '', author: '', cover: '', totalPages: '', readPages: 0, genre: '', isbn: '', status: 'Unread', ownership: 'Owned', rating: 0, notes: '', wantToBuy: false, priority: 'Medium', price: '', collections: [], dateFinished: null });
-
-      const handleChange = (e) => {
-        const { name, value, type, checked } = e.target;
-        if (name === 'wantToBuy') setFormData({ ...formData, wantToBuy: checked, ownership: checked ? 'Not Owned' : 'Owned' });
-        else setFormData({ ...formData, [name]: type === 'checkbox' ? checked : value });
-      };
-      const handleCollectionToggle = (colId) => setFormData(p => ({ ...p, collections: p.collections.includes(colId) ? p.collections.filter(i => i !== colId) : [...p.collections, colId] }));
-
-      const handleSubmit = (e) => {
-        e.preventDefault();
-        let dataToSave = { ...formData, totalPages: parseInt(formData.totalPages) || 0, readPages: parseInt(formData.readPages) || 0, rating: parseInt(formData.rating) || 0, price: parseFloat(formData.price) || 0 };
-        if (!dataToSave.cover) dataToSave.cover = `https://placehold.co/300x450/fdfbf7/333333?text=${encodeURIComponent(dataToSave.title)}`;
-
-        if (dataToSave.status === 'Finished') { dataToSave.readPages = dataToSave.totalPages; dataToSave.progress = 100; if (existingBook?.status !== 'Finished') dataToSave.dateFinished = new Date().toISOString(); }
-        else if (dataToSave.status === 'Unread') { dataToSave.readPages = 0; dataToSave.progress = 0; }
-        else { dataToSave.progress = dataToSave.totalPages ? Math.round((dataToSave.readPages / dataToSave.totalPages) * 100) : 0; }
-
-        if (id) { updateBook(dataToSave); addToast('Book updated'); } else { addBook(dataToSave); addToast('Book added'); }
-        navigate(-1);
-      };
-
-      const inputClass = "w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500/50 bg-white text-sm";
-      const labelClass = "block text-xs font-medium text-gray-600 mb-1.5";
-
-      return (
-        <div className="max-w-4xl mx-auto bg-white p-4 md:p-8 rounded-xl border border-gray-100 shadow-sm animate-fade-in-up">
-          <button onClick={() => navigate(-1)} className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 mb-4 focus:outline-none focus:ring-2 focus:ring-brand-500 rounded p-1 -ml-1"><Icons.ArrowLeft className="w-4 h-4"/> Back</button>
-          <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-6">{id ? 'Edit Book' : 'Add New Book'}</h2>
-          
-          <form onSubmit={handleSubmit} className="space-y-6 md:space-y-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-              <div className="space-y-5">
-                <div className="bg-gray-50/80 p-4 md:p-5 rounded-xl border border-gray-100 space-y-4">
-                  <h3 className="font-semibold text-sm text-gray-900 border-b border-gray-200 pb-2">Core Information</h3>
-                  <div><label className={labelClass}>Title <span className="text-red-500">*</span></label><input required type="text" name="title" value={formData.title} onChange={handleChange} className={inputClass} placeholder="Book title" /></div>
-                  <div><label className={labelClass}>Author <span className="text-red-500">*</span></label><input required type="text" name="author" value={formData.author} onChange={handleChange} className={inputClass} placeholder="Author name" /></div>
-                  <div><label className={labelClass}>Cover Image URL</label><input type="url" name="cover" value={formData.cover} onChange={handleChange} className={inputClass} placeholder="https://..." /></div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div><label className={labelClass}>Total Pages</label><input type="number" min="0" name="totalPages" value={formData.totalPages} onChange={handleChange} className={inputClass} /></div>
-                    <div><label className={labelClass}>Genre</label><input type="text" name="genre" value={formData.genre} onChange={handleChange} className={inputClass} /></div>
-                  </div>
-                </div>
-
-                <div className="bg-gray-50/80 p-4 md:p-5 rounded-xl border border-gray-100">
-                  <h3 className="font-semibold text-sm text-gray-900 border-b border-gray-200 pb-2 mb-3">Add to Collections</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-40 overflow-y-auto custom-scrollbar pr-2">
-                    {collections.length === 0 ? <p className="text-xs text-gray-500 italic col-span-2">No collections available.</p> : collections.map(col => (
-                      <label key={col.id} className="flex items-center gap-2.5 text-sm text-gray-700 cursor-pointer p-1 rounded hover:bg-gray-100">
-                        <input type="checkbox" checked={formData.collections.includes(col.id)} onChange={() => handleCollectionToggle(col.id)} className="w-4 h-4 rounded border-gray-300 text-brand-600 focus:ring-brand-500" /> <span className="truncate">{col.name}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-5">
-                <div className={`p-4 md:p-5 rounded-xl border transition-colors ${formData.wantToBuy ? 'bg-yellow-50/50 border-yellow-200' : 'bg-gray-50/80 border-gray-100'}`}>
-                  <label className="flex items-center gap-3 font-semibold text-gray-900 cursor-pointer select-none">
-                    <input type="checkbox" name="wantToBuy" checked={formData.wantToBuy} onChange={handleChange} className="w-4 h-4 rounded border-gray-300 text-brand-600 focus:ring-brand-500" /> I want to buy this book
-                  </label>
-                  {formData.wantToBuy && (
-                    <div className="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-yellow-200/50 animate-fade-in-up">
-                      <div><label className={labelClass}>Priority</label><select name="priority" value={formData.priority} onChange={handleChange} className={inputClass}><option value="High">High</option><option value="Medium">Medium</option><option value="Low">Low</option></select></div>
-                      <div><label className={labelClass}>Price (₹)</label><input type="number" min="0" step="0.01" name="price" value={formData.price} onChange={handleChange} className={inputClass} /></div>
-                    </div>
-                  )}
-                </div>
-
-                <div className={`bg-gray-50/80 p-4 md:p-5 rounded-xl border border-gray-100 space-y-4 transition-opacity ${formData.wantToBuy ? 'opacity-50 pointer-events-none' : ''}`}>
-                  <h3 className="font-semibold text-sm text-gray-900 border-b border-gray-200 pb-2">Library Status</h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div><label className={labelClass}>Ownership</label><select name="ownership" value={formData.ownership} onChange={handleChange} className={inputClass}><option value="Owned">Owned</option><option value="Not Owned">Not Owned</option></select></div>
-                    <div><label className={labelClass}>Status</label><select name="status" value={formData.status} onChange={handleChange} className={inputClass}><option value="Unread">Unread</option><option value="Currently Reading">Currently Reading</option><option value="Finished">Finished</option><option value="Dropped">Dropped</option></select></div>
-                  </div>
-                  {formData.status === 'Currently Reading' && (
-                    <div className="animate-fade-in-up"><label className={labelClass}>Current Page</label><input type="number" min="0" max={formData.totalPages || undefined} name="readPages" value={formData.readPages} onChange={handleChange} className={inputClass} /></div>
-                  )}
-                  <div><label className={labelClass}>Rating (0-5)</label><input type="number" min="0" max="5" step="0.5" name="rating" value={formData.rating} onChange={handleChange} className={inputClass} /></div>
-                </div>
-
-                <div className="bg-gray-50/80 p-4 md:p-5 rounded-xl border border-gray-100">
-                  <label className={labelClass}>Notes</label>
-                  <textarea name="notes" rows="3" value={formData.notes} onChange={handleChange} className={`${inputClass} resize-none`} placeholder="Your thoughts..."></textarea>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex justify-end gap-3 pt-6 border-t border-gray-100">
-              <button type="button" onClick={() => navigate(-1)} className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-300 transition-colors">Cancel</button>
-              <button type="submit" className="px-5 py-2 text-sm font-medium text-white bg-brand-600 hover:bg-brand-700 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 transition-colors">Save Book</button>
-            </div>
-          </form>
-        </div>
-      );
-    };
-
-    const BookDetails = () => {
-      const { id } = useParams(); const navigate = useNavigate(); const addToast = useToast();
-      const { books, collections, updateBook, deleteBook } = useContext(BookContext);
-      const book = books.find(b => b.id === id);
-      const [readPages, setReadPages] = useState(book?.readPages || 0);
-
-      useEffect(() => { if (book) setReadPages(book.readPages || 0); }, [book]);
-
-      if (!book) return <EmptyState title="Book not found" message="This book may have been deleted." icon={Icons.BookOpen} actionText="Go to Library" onAction={() => navigate('/books')} />;
-
-      const handleUpdateProgress = () => {
-        const val = parseInt(readPages) || 0; const total = book.totalPages || 0;
-        let newStatus = book.status; let newDateFinished = book.dateFinished;
-        const progress = total > 0 ? Math.round((val/total)*100) : 0;
-        if (val >= total && total > 0) { newStatus = 'Finished'; if (book.status !== 'Finished') newDateFinished = new Date().toISOString(); }
-        updateBook({ ...book, readPages: val, progress, status: newStatus, dateFinished: newDateFinished });
-        addToast(newStatus === 'Finished' ? 'Book finished! 🎉' : 'Progress saved');
-      };
-
-      const bookCollections = collections.filter(c => book.collections?.includes(c.id));
-      const currentProgress = book.totalPages > 0 ? Math.round((book.readPages / book.totalPages) * 100) : (book.progress || 0);
-
-      return (
-        <div className="max-w-5xl mx-auto flex flex-col md:flex-row gap-6 md:gap-8 animate-fade-in-up">
-          <div className="w-full md:w-72 shrink-0 flex flex-col gap-4">
-            <button onClick={() => navigate(-1)} className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 mb-2 w-fit rounded p-1 -ml-1 focus:outline-none focus:ring-2 focus:ring-brand-500"><Icons.ArrowLeft className="w-4 h-4"/> Back</button>
-            <div className="bg-white p-4 md:p-5 rounded-xl border border-gray-100 shadow-sm text-center">
-              <img src={book.cover} alt={book.title} className="w-full aspect-[2/3] object-cover rounded-lg border border-gray-100 mb-4 shadow-sm" loading="lazy" />
-              {book.wantToBuy ? <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-md bg-yellow-100 text-yellow-700">Want to Buy</span> : <StatusBadge status={book.status} />}
-              <div className="flex items-center justify-center gap-1 mt-4 text-brand-500" aria-label={`Rating: ${book.rating} stars`}>
-                {[1,2,3,4,5].map(star => <Icons.Star key={star} className={`w-4 h-4 md:w-5 md:h-5 ${star <= book.rating ? 'fill-current' : 'text-gray-200'}`} aria-hidden="true" />)}
-              </div>
-              <div className="grid grid-cols-2 gap-2 mt-6">
-                <button onClick={() => navigate(`/books/${book.id}/edit`)} className="px-3 py-2 text-sm bg-gray-50 text-gray-700 rounded-lg hover:bg-gray-100 flex justify-center items-center gap-1.5 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300 transition-colors"><Icons.Edit2 className="w-3.5 h-3.5"/> Edit</button>
-                <button onClick={() => { if(window.confirm(`Delete "${book.title}"?`)) { deleteBook(book.id); addToast('Book deleted'); navigate('/books'); } }} className="px-3 py-2 text-sm bg-red-50 text-red-600 rounded-lg hover:bg-red-100 flex justify-center items-center gap-1.5 border border-red-100 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors"><Icons.Trash2 className="w-3.5 h-3.5"/> Delete</button>
-              </div>
-            </div>
-
-            {book.status === 'Currently Reading' && !book.wantToBuy && (
-              <div className="bg-white p-4 md:p-5 rounded-xl border border-gray-100 shadow-sm">
-                <h4 className="font-semibold text-sm text-gray-900 mb-3">Update Progress</h4>
-                <div className="flex items-center gap-2 mb-3">
-                  <input type="number" min="0" max={book.totalPages || undefined} value={readPages} onChange={(e) => setReadPages(e.target.value)} className="w-20 px-2 py-1.5 text-sm border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-brand-500/50 text-center" aria-label="Current page" />
-                  <span className="text-sm text-gray-500">/ {book.totalPages || '?'} p</span>
-                </div>
-                <div className="flex items-center gap-2 text-xs text-gray-400 font-medium mb-4">
-                  <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden"><div className="h-full bg-brand-500 rounded-full transition-all duration-300" style={{ width: `${currentProgress}%` }}></div></div>
-                  <span>{currentProgress}%</span>
-                </div>
-                <button onClick={handleUpdateProgress} className="w-full py-2 bg-brand-50 text-brand-600 text-sm font-medium rounded-lg hover:bg-brand-100 transition-colors focus:outline-none focus:ring-2 focus:ring-brand-500">Save Progress</button>
-              </div>
-            )}
-          </div>
-
-          <div className="flex-1 bg-white rounded-xl border border-gray-100 shadow-sm p-5 md:p-8 flex flex-col">
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-1">{book.title}</h1>
-            <p className="text-base md:text-lg text-gray-500 mb-6">{book.author}</p>
-
-            {bookCollections.length > 0 && (
-              <div className="flex flex-wrap gap-2 mb-8">
-                {bookCollections.map(c => <span key={c.id} className="text-xs font-medium px-2.5 py-1 bg-brand-50 text-brand-700 rounded-md border border-brand-100 flex items-center gap-1.5"><Icons.Hash className="w-3.5 h-3.5"/> {c.name}</span>)}
-              </div>
-            )}
-
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 mb-8 pb-8 border-b border-gray-100">
-              <div><p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-1">Pages</p><p className="font-semibold text-gray-900 text-sm">{book.totalPages || '-'}</p></div>
-              <div><p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-1">Ownership</p><p className="font-semibold text-gray-900 text-sm">{book.ownership}</p></div>
-              {book.wantToBuy ? (
-                <>
-                  <div><p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-1">Priority</p><p className="font-semibold text-gray-900 text-sm">{book.priority}</p></div>
-                  <div><p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-1">Price</p><p className="font-semibold text-gray-900 text-sm">{book.price ? `₹${book.price}` : '-'}</p></div>
-                </>
-              ) : (
-                 <>
-                   <div><p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-1">Genre</p><p className="font-semibold text-gray-900 text-sm truncate" title={book.genre}>{book.genre || '-'}</p></div>
-                   <div><p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-1">ISBN</p><p className="font-semibold text-gray-900 text-sm truncate" title={book.isbn}>{book.isbn || '-'}</p></div>
-                 </>
-              )}
-            </div>
-
-            <div className="flex-1">
-              <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-3">My Notes</h3>
-              <div className="bg-gray-50 rounded-lg p-4 md:p-5 h-full min-h-[150px] border border-gray-100">
-                 <p className="text-sm md:text-base text-gray-600 leading-relaxed whitespace-pre-wrap">{book.notes || <span className="italic text-gray-400">No notes added yet.</span>}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      );
-    };
-
     const SettingsPage = () => {
-      const { exportLibrary, importLibrary, resetLibrary } = useContext(BookContext); const addToast = useToast();
+      const { exportLibrary, importLibrary, resetLibrary } = useContext(BookContext); 
+      const addToast = useToast(); const navigate = useNavigate();
       const fileInputRef = useRef(null);
 
       const handleFileChange = (e) => {
@@ -881,34 +782,67 @@
         } 
       };
 
+      const SectionHeader = ({ icon: IconCmp, title, desc }) => (
+        <div className="mb-4">
+          <h3 className="text-base font-bold text-gray-900 flex items-center gap-2"><IconCmp className="w-4 h-4 text-brand-600" /> {title}</h3>
+          {desc && <p className="text-xs text-gray-500 mt-1">{desc}</p>}
+        </div>
+      );
+
       return (
-        <div className="max-w-3xl mx-auto space-y-6 animate-fade-in-up">
-          <div className="bg-white p-5 md:p-8 rounded-xl border border-gray-100 shadow-sm">
-            <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-1.5">Data & Storage Management</h2>
-            <p className="text-xs md:text-sm text-gray-500 mb-8">Your data is stored locally in your browser. Backup your data to avoid losing it if you clear your browser cache.</p>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-              <div className="border border-gray-100 rounded-xl p-5 bg-gray-50/50 flex flex-col justify-between">
-                <div><div className="w-10 h-10 bg-brand-50 rounded-lg flex items-center justify-center text-brand-600 mb-4"><Icons.Download className="w-5 h-5" /></div><h3 className="font-semibold text-gray-900 text-sm mb-1">Export Library</h3><p className="text-xs text-gray-500 mb-5">Download a full JSON backup of your books and collections.</p></div>
-                <button onClick={() => { exportLibrary(); addToast('Backup downloaded'); }} className="w-full py-2 px-4 bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium rounded-lg shadow-sm flex items-center justify-center gap-2 transition-colors focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-1"><Icons.Download className="w-4 h-4" /> Download Backup</button>
-              </div>
-              <div className="border border-gray-100 rounded-xl p-5 bg-gray-50/50 flex flex-col justify-between">
-                <div><div className="w-10 h-10 bg-purple-50 rounded-lg flex items-center justify-center text-purple-600 mb-4"><Icons.Upload className="w-5 h-5" /></div><h3 className="font-semibold text-gray-900 text-sm mb-1">Import Library</h3><p className="text-xs text-gray-500 mb-5">Restore your library from a previously exported BookNest backup.</p></div>
-                <div><input type="file" ref={fileInputRef} onChange={handleFileChange} accept=".json" className="hidden" id="import-file"/><label htmlFor="import-file" className="w-full py-2 px-4 bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 text-sm font-medium rounded-lg cursor-pointer flex items-center justify-center gap-2 shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-1" tabIndex="0" onKeyDown={e => e.key === 'Enter' && fileInputRef.current.click()}><Icons.Upload className="w-4 h-4" /> Select Backup File</label></div>
-              </div>
+        <div className="max-w-4xl mx-auto space-y-6 animate-fade-in-up">
+          <div className="bg-white p-5 md:p-8 rounded-xl border border-gray-100 shadow-sm space-y-8">
+            <div className="border-b border-gray-100 pb-4">
+               <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-1.5">Settings</h2>
+               <p className="text-sm text-gray-500">Manage your application preferences and data.</p>
+            </div>
+
+            {/* Profile Section */}
+            <div>
+              <SectionHeader icon={Icons.User} title="Profile" desc="Manage your personal details and reading goal." />
+              <button onClick={() => navigate('/profile/edit')} className="py-2.5 px-4 bg-gray-50 hover:bg-gray-100 text-gray-700 text-sm font-medium border border-gray-200 rounded-lg flex items-center gap-2 transition-colors focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-1"><Icons.Edit2 className="w-4 h-4" /> Edit Profile</button>
             </div>
             
-            <div className="mt-8 pt-6 border-t border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div><h4 className="text-sm font-semibold text-red-600 mb-0.5">Danger Zone</h4><p className="text-xs text-gray-500">Permanently delete custom items and restore demo data.</p></div>
-              <button onClick={handleReset} className="py-2 px-4 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 text-sm font-medium rounded-lg flex items-center justify-center gap-2 transition-colors shrink-0 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1"><Icons.RefreshCw className="w-4 h-4" /> Factory Reset</button>
+            {/* Library Section */}
+            <div className="pt-6 border-t border-gray-100">
+              <SectionHeader icon={Icons.Library} title="Library Data" desc="Your data is stored locally in your browser. Backup your data to avoid losing it." />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="border border-gray-100 rounded-xl p-4 bg-gray-50/50 flex flex-col justify-between">
+                  <div className="mb-4"><h4 className="font-semibold text-gray-900 text-sm mb-1">Export Library</h4><p className="text-xs text-gray-500">Download a full JSON backup of your books.</p></div>
+                  <button onClick={() => { exportLibrary(); addToast('Backup downloaded'); }} className="w-full py-2 px-4 bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium rounded-lg shadow-sm flex items-center justify-center gap-2 transition-colors focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-1"><Icons.Download className="w-4 h-4" /> Download Backup</button>
+                </div>
+                <div className="border border-gray-100 rounded-xl p-4 bg-gray-50/50 flex flex-col justify-between">
+                  <div className="mb-4"><h4 className="font-semibold text-gray-900 text-sm mb-1">Import Library</h4><p className="text-xs text-gray-500">Restore your library from a previous backup.</p></div>
+                  <div><input type="file" ref={fileInputRef} onChange={handleFileChange} accept=".json" className="hidden" id="import-file"/><label htmlFor="import-file" className="w-full py-2 px-4 bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 text-sm font-medium rounded-lg cursor-pointer flex items-center justify-center gap-2 shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-1" tabIndex="0" onKeyDown={e => e.key === 'Enter' && fileInputRef.current.click()}><Icons.Upload className="w-4 h-4" /> Select Backup File</label></div>
+                </div>
+              </div>
+              <div className="mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 border border-red-100 bg-red-50/30 rounded-xl">
+                <div><h4 className="text-sm font-semibold text-red-600 mb-0.5">Reset to Defaults</h4><p className="text-xs text-gray-500">Permanently delete custom items and restore demo data.</p></div>
+                <button onClick={handleReset} className="py-2 px-4 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 text-sm font-medium rounded-lg flex items-center justify-center gap-2 transition-colors shrink-0 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1"><Icons.RefreshCw className="w-4 h-4" /> Factory Reset</button>
+              </div>
             </div>
+
+            {/* Appearance Section */}
+            <div className="pt-6 border-t border-gray-100">
+              <SectionHeader icon={Icons.Palette} title="Appearance" desc="Customize how BookNest looks." />
+              <div className="p-4 border border-gray-100 bg-gray-50 rounded-xl opacity-70 cursor-not-allowed">
+                 <div className="flex items-center gap-3"><span className="px-3 py-1 text-xs font-semibold bg-gray-200 text-gray-500 rounded uppercase">Coming Soon</span> <p className="text-sm font-medium text-gray-600">Dark Mode support is on the way.</p></div>
+              </div>
+            </div>
+
+            {/* About Section */}
+            <div className="pt-6 border-t border-gray-100">
+              <SectionHeader icon={Icons.Info} title="About BookNest" />
+              <button onClick={() => navigate('/about')} className="py-2.5 px-4 bg-gray-50 hover:bg-gray-100 text-gray-700 text-sm font-medium border border-gray-200 rounded-lg flex items-center gap-2 transition-colors focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-1"><Icons.Info className="w-4 h-4" /> View About Page</button>
+            </div>
+
           </div>
         </div>
       );
     };
 
     // ==========================================
-    // 8. APP ROUTING
+    // 9. APP ENTRY
     // ==========================================
     function App() {
       return (
@@ -924,8 +858,11 @@
                   <Route path="books/:id" element={<BookDetails />} />
                   <Route path="books/:id/edit" element={<BookForm />} />
                   <Route path="to-buy" element={<ToBuyPage />} />
+                  <Route path="profile" element={<ProfilePage />} />
+                  <Route path="profile/edit" element={<EditProfilePage />} />
                   <Route path="settings" element={<SettingsPage />} />
-                  <Route path="*" element={<EmptyState title="Page Not Found" message="The page you are looking for doesn't exist." icon={Icons.AlertCircle} />} />
+                  <Route path="about" element={<AboutPage />} />
+                  <Route path="*" element={<EmptyState title="Page Not Found" message="The page you are looking for doesn't exist." icon={Icons.AlertCircle} actionText="Go Home" onAction={() => window.location.hash = '#/'} />} />
                 </Route>
               </Routes>
             </HashRouter>
