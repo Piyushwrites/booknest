@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BookNest - Phase 1 to 5</title>
+  <title>BookNest - Phase 1 to 6</title>
 
   <!-- Google Fonts: Inter -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
@@ -41,6 +41,7 @@
     }
     .custom-scrollbar::-webkit-scrollbar {
       width: 6px;
+      height: 6px;
     }
     .custom-scrollbar::-webkit-scrollbar-track {
       background: transparent;
@@ -79,12 +80,10 @@
     const { HashRouter, Routes, Route, NavLink, useLocation, Outlet, useNavigate, useParams, Link } = window.ReactRouterDOM;
 
     // ==========================================
-    // 1. ICON COMPONENTS (Lucide Replacements)
+    // 1. ICON COMPONENTS
     // ==========================================
     const Icon = ({ children, className = "w-5 h-5" }) => (
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-        {children}
-      </svg>
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>{children}</svg>
     );
     const Icons = {
       BookOpen: ({className}) => <Icon className={className}><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></Icon>,
@@ -93,11 +92,9 @@
       CheckCircle2: ({className}) => <Icon className={className}><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></Icon>,
       ShoppingCart: ({className}) => <Icon className={className}><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></Icon>,
       Settings: ({className}) => <Icon className={className}><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></Icon>,
-      Info: ({className}) => <Icon className={className}><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></Icon>,
       Plus: ({className}) => <Icon className={className}><path d="M5 12h14"/><path d="M12 5v14"/></Icon>,
       Hash: ({className}) => <Icon className={className}><line x1="4" x2="20" y1="9" y2="9"/><line x1="4" x2="20" y1="15" y2="15"/><line x1="10" x2="8" y1="3" y2="21"/><line x1="16" x2="14" y1="3" y2="21"/></Icon>,
       Search: ({className}) => <Icon className={className}><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></Icon>,
-      Bell: ({className}) => <Icon className={className}><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></Icon>,
       Menu: ({className}) => <Icon className={className}><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></Icon>,
       MoreVertical: ({className}) => <Icon className={className}><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></Icon>,
       Grid: ({className}) => <Icon className={className}><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></Icon>,
@@ -108,11 +105,15 @@
       Trash2: ({className}) => <Icon className={className}><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></Icon>,
       Download: ({className}) => <Icon className={className}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></Icon>,
       Upload: ({className}) => <Icon className={className}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></Icon>,
-      RefreshCw: ({className}) => <Icon className={className}><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></Icon>
+      RefreshCw: ({className}) => <Icon className={className}><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></Icon>,
+      Target: ({className}) => <Icon className={className}><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></Icon>,
+      TrendingUp: ({className}) => <Icon className={className}><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></Icon>,
+      ChevronRight: ({className}) => <Icon className={className}><polyline points="9 18 15 12 9 6"/></Icon>,
+      FileText: ({className}) => <Icon className={className}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></Icon>
     };
 
     // ==========================================
-    // 2. PHASE 5: PERSISTENCE & STORAGE SERVICE
+    // 2. STORAGE SERVICE
     // ==========================================
     const STORAGE_KEY = 'booknest_app_data_v1';
 
@@ -120,26 +121,34 @@
       { id: 'c1', name: 'AI and Technology' },
       { id: 'c2', name: 'Psychology' },
       { id: 'c3', name: 'Philosophy' },
-      { id: 'c4', name: 'Spirituality' },
-      { id: 'c5', name: 'Business' },
-      { id: 'c6', name: 'Fiction' }
+      { id: 'c4', name: 'Business' },
+      { id: 'c5', name: 'Fiction' }
     ];
 
     const defaultBooks = [
       {
         id: '1', title: 'Atomic Habits', author: 'James Clear', cover: 'https://placehold.co/300x450/fdfbf7/333333?text=Atomic\nHabits', 
-        status: 'Finished', progress: 100, rating: 5, dateAdded: '2023-01-10T10:00:00.000Z', totalPages: 320, readPages: 320, genre: 'Self Help', isbn: '978-1847941831', 
-        ownership: 'Owned', wantToBuy: false, priority: 'Medium', price: 0, collections: ['c2', 'c5'], notes: 'Focus on tiny changes. Systems over goals.'
+        status: 'Finished', progress: 100, rating: 5, dateAdded: '2026-01-10T10:00:00.000Z', dateFinished: '2026-02-15T10:00:00.000Z',
+        totalPages: 320, readPages: 320, genre: 'Self Help', isbn: '978-1847941831', 
+        ownership: 'Owned', wantToBuy: false, priority: 'Medium', price: 0, collections: ['c2', 'c4'], notes: 'Focus on tiny changes. Systems over goals.'
       },
       {
         id: '2', title: 'Deep Work', author: 'Cal Newport', cover: 'https://placehold.co/300x450/f0f4f8/333333?text=Deep\nWork', 
-        status: 'Currently Reading', progress: 62, rating: 0, dateAdded: '2023-05-12T10:00:00.000Z', totalPages: 296, readPages: 184, genre: 'Productivity', isbn: '978-1455586691', 
-        ownership: 'Owned', wantToBuy: false, priority: 'Medium', price: 0, collections: ['c5'], notes: 'Rules for focused success in a distracted world.'
+        status: 'Currently Reading', progress: 62, rating: 0, dateAdded: '2026-05-12T10:00:00.000Z', 
+        totalPages: 296, readPages: 184, genre: 'Productivity', isbn: '978-1455586691', 
+        ownership: 'Owned', wantToBuy: false, priority: 'Medium', price: 0, collections: ['c4'], notes: 'Rules for focused success in a distracted world.'
       },
       {
         id: '3', title: 'The Almanack of Naval Ravikant', author: 'Eric Jorgenson', cover: 'https://placehold.co/300x450/fdfbf7/333333?text=Naval\nRavikant', 
-        status: 'Unread', progress: 0, rating: 0, dateAdded: '2023-06-20T10:00:00.000Z', totalPages: 244, readPages: 0, genre: 'Business', isbn: '978-1544514215', 
-        ownership: 'Not Owned', wantToBuy: true, priority: 'High', price: 599, collections: ['c3', 'c5'], notes: 'Highly recommended by peers.'
+        status: 'Unread', progress: 0, rating: 0, dateAdded: '2026-06-20T10:00:00.000Z', 
+        totalPages: 244, readPages: 0, genre: 'Business', isbn: '978-1544514215', 
+        ownership: 'Not Owned', wantToBuy: true, priority: 'High', price: 599, collections: ['c3', 'c4'], notes: 'Highly recommended.'
+      },
+      {
+        id: '4', title: 'Sapiens', author: 'Yuval Noah Harari', cover: 'https://placehold.co/300x450/fdfbf7/333333?text=Sapiens', 
+        status: 'Finished', progress: 100, rating: 4, dateAdded: '2026-03-10T10:00:00.000Z', dateFinished: '2026-04-22T10:00:00.000Z',
+        totalPages: 443, readPages: 443, genre: 'History', isbn: '978-0062316097', 
+        ownership: 'Owned', wantToBuy: false, priority: 'Medium', price: 0, collections: ['c1'], notes: 'A brief history of humankind.'
       }
     ];
 
@@ -147,123 +156,80 @@
       load() {
         try {
           const raw = localStorage.getItem(STORAGE_KEY);
-          if (!raw) return { books: defaultBooks, collections: defaultCollections };
+          if (!raw) return { books: defaultBooks, collections: defaultCollections, readingGoal: 50 };
           const parsed = JSON.parse(raw);
           return {
             books: Array.isArray(parsed.books) ? parsed.books : defaultBooks,
-            collections: Array.isArray(parsed.collections) ? parsed.collections : defaultCollections
+            collections: Array.isArray(parsed.collections) ? parsed.collections : defaultCollections,
+            readingGoal: typeof parsed.readingGoal === 'number' ? parsed.readingGoal : 50
           };
         } catch (e) {
           console.error("Failed to load local storage data", e);
-          return { books: defaultBooks, collections: defaultCollections };
+          return { books: defaultBooks, collections: defaultCollections, readingGoal: 50 };
         }
       },
       save(data) {
-        try {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-        } catch (e) {
-          console.error("Failed to save to local storage", e);
-        }
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch (e) { console.error(e); }
       },
       reset() {
         localStorage.removeItem(STORAGE_KEY);
-        return { books: defaultBooks, collections: defaultCollections };
+        return { books: defaultBooks, collections: defaultCollections, readingGoal: 50 };
       }
     };
 
     // ==========================================
-    // 3. CENTRAL STATE MANAGEMENT (CONTEXT)
+    // 3. CONTEXT & STATE MANAGEMENT
     // ==========================================
     const BookContext = createContext();
 
     const BookProvider = ({ children }) => {
       const [data, setData] = useState(() => StorageService.load());
 
-      // Auto-save on every state modification
-      useEffect(() => {
-        StorageService.save(data);
-      }, [data]);
+      useEffect(() => { StorageService.save(data); }, [data]);
 
       const books = data.books;
       const collections = data.collections;
+      const readingGoal = data.readingGoal;
 
-      // Book Actions
       const addBook = (book) => {
-        setData(prev => ({
-          ...prev,
-          books: [...prev.books, { ...book, id: Date.now().toString(), dateAdded: new Date().toISOString() }]
-        }));
+        setData(prev => ({ ...prev, books: [...prev.books, { ...book, id: Date.now().toString(), dateAdded: new Date().toISOString() }] }));
       };
-
       const updateBook = (updatedBook) => {
-        setData(prev => ({
-          ...prev,
-          books: prev.books.map(b => b.id === updatedBook.id ? updatedBook : b)
-        }));
+        setData(prev => ({ ...prev, books: prev.books.map(b => b.id === updatedBook.id ? updatedBook : b) }));
       };
-
       const deleteBook = (id) => {
-        setData(prev => ({
-          ...prev,
-          books: prev.books.filter(b => b.id !== id)
-        }));
+        setData(prev => ({ ...prev, books: prev.books.filter(b => b.id !== id) }));
       };
-
-      // Collection Actions
       const addCollection = (name) => {
-        if (!name.trim()) return;
-        setData(prev => ({
-          ...prev,
-          collections: [...prev.collections, { id: 'c' + Date.now(), name: name.trim() }]
-        }));
+        if (name.trim()) setData(prev => ({ ...prev, collections: [...prev.collections, { id: 'c' + Date.now(), name: name.trim() }] }));
       };
-
       const renameCollection = (id, newName) => {
-        if (!newName.trim()) return;
-        setData(prev => ({
-          ...prev,
-          collections: prev.collections.map(c => c.id === id ? { ...c, name: newName.trim() } : c)
-        }));
+        if (newName.trim()) setData(prev => ({ ...prev, collections: prev.collections.map(c => c.id === id ? { ...c, name: newName.trim() } : c) }));
       };
-
       const deleteCollection = (id) => {
-        setData(prev => ({
-          collections: prev.collections.filter(c => c.id !== id),
-          books: prev.books.map(b => ({
-            ...b,
-            collections: (b.collections || []).filter(cid => cid !== id)
-          }))
-        }));
+        setData(prev => ({ collections: prev.collections.filter(c => c.id !== id), books: prev.books.map(b => ({ ...b, collections: (b.collections || []).filter(cid => cid !== id) })) }));
       };
-
-      // Phase 5 Backup & Restore
+      const setReadingGoal = (goal) => {
+        setData(prev => ({ ...prev, readingGoal: goal }));
+      };
       const exportLibrary = () => {
         const jsonString = `data:text/json;charset=utf-8,${encodeURIComponent(JSON.stringify(data, null, 2))}`;
-        const downloadAnchor = document.createElement('a');
-        downloadAnchor.setAttribute("href", jsonString);
-        downloadAnchor.setAttribute("download", `booknest-backup-${new Date().toISOString().slice(0, 10)}.json`);
-        document.body.appendChild(downloadAnchor);
-        downloadAnchor.click();
-        downloadAnchor.remove();
+        const a = document.createElement('a');
+        a.setAttribute("href", jsonString);
+        a.setAttribute("download", `booknest-backup-${new Date().toISOString().slice(0, 10)}.json`);
+        document.body.appendChild(a); a.click(); a.remove();
       };
-
       const importLibrary = (importedData) => {
-        if (!importedData || !Array.isArray(importedData.books) || !Array.isArray(importedData.collections)) {
-          throw new Error("Invalid backup format. File must contain valid 'books' and 'collections' arrays.");
-        }
-        setData(importedData);
+        if (!importedData || !Array.isArray(importedData.books) || !Array.isArray(importedData.collections)) throw new Error("Invalid format.");
+        setData({ ...importedData, readingGoal: importedData.readingGoal || 50 });
       };
-
-      const resetLibrary = () => {
-        const defaults = StorageService.reset();
-        setData(defaults);
-      };
+      const resetLibrary = () => setData(StorageService.reset());
 
       return (
         <BookContext.Provider value={{ 
           books, addBook, updateBook, deleteBook,
           collections, addCollection, renameCollection, deleteCollection,
-          exportLibrary, importLibrary, resetLibrary
+          readingGoal, setReadingGoal, exportLibrary, importLibrary, resetLibrary
         }}>
           {children}
         </BookContext.Provider>
@@ -271,7 +237,7 @@
     };
 
     // ==========================================
-    // 4. LAYOUT COMPONENTS (Phase 1 & 4)
+    // 4. LAYOUT & NAVIGATION
     // ==========================================
     const mainLinks = [
       { name: 'Dashboard', path: '/', icon: Icons.LayoutDashboard },
@@ -281,61 +247,37 @@
 
     function Sidebar() {
       const { collections, addCollection } = useContext(BookContext);
-      const navClass = ({ isActive }) =>
-        `flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-          isActive ? 'bg-brand-50 text-brand-600' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900'
-        }`;
+      const navClass = ({ isActive }) => `flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${isActive ? 'bg-brand-50 text-brand-600' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900'}`;
 
-      const handleNewCollection = () => {
-        const name = window.prompt('Enter new collection name:');
-        if (name) addCollection(name);
-      };
+      const handleNewCollection = () => { const name = window.prompt('Enter new collection name:'); if (name) addCollection(name); };
 
       return (
         <aside className="w-64 h-screen bg-white border-r border-gray-100 flex flex-col sticky top-0 shrink-0 hidden md:flex z-20">
-          <div className="h-20 flex items-center px-6 gap-2 text-brand-600 font-bold text-xl">
-            <Icons.BookOpen className="w-6 h-6 fill-current" /><span>BookNest</span>
-          </div>
+          <div className="h-20 flex items-center px-6 gap-2 text-brand-600 font-bold text-xl"><Icons.BookOpen className="w-6 h-6 fill-current" /><span>BookNest</span></div>
           <div className="flex-1 overflow-y-auto px-4 py-2 space-y-8 custom-scrollbar">
             <div>
               <p className="text-xs font-semibold text-gray-400 mb-3 px-4 tracking-wider">MAIN</p>
               <nav className="flex flex-col gap-1">
-                {mainLinks.map((link) => (
-                  <NavLink key={link.name} to={link.path} className={navClass}><link.icon className="w-4 h-4" />{link.name}</NavLink>
-                ))}
+                {mainLinks.map((link) => <NavLink key={link.name} to={link.path} className={navClass}><link.icon className="w-4 h-4" />{link.name}</NavLink>)}
               </nav>
             </div>
             <div>
               <p className="text-xs font-semibold text-gray-400 mb-3 px-4 tracking-wider">COLLECTIONS</p>
               <nav className="flex flex-col gap-1">
-                {collections.map((collection) => (
-                  <NavLink key={collection.id} to={`/collections/${collection.id}`} className={navClass}>
-                    <Icons.Hash className="w-4 h-4" />{collection.name}
-                  </NavLink>
-                ))}
-                <button onClick={handleNewCollection} className="flex items-center gap-3 px-4 py-2.5 mt-2 text-sm font-medium text-brand-600 hover:bg-brand-50 rounded-lg transition-colors text-left">
-                  <Icons.Plus className="w-4 h-4" /> New Collection
-                </button>
+                {collections.map((c) => <NavLink key={c.id} to={`/collections/${c.id}`} className={navClass}><Icons.Hash className="w-4 h-4" />{c.name}</NavLink>)}
+                <button onClick={handleNewCollection} className="flex items-center gap-3 px-4 py-2.5 mt-2 text-sm font-medium text-brand-600 hover:bg-brand-50 rounded-lg transition-colors text-left"><Icons.Plus className="w-4 h-4" /> New Collection</button>
               </nav>
             </div>
           </div>
           <div className="p-4 border-t border-gray-100">
-            <nav className="flex flex-col gap-1">
-              <NavLink to="/settings" className={navClass}>
-                <Icons.Settings className="w-4 h-4" />
-                Settings
-              </NavLink>
-            </nav>
+            <nav className="flex flex-col gap-1"><NavLink to="/settings" className={navClass}><Icons.Settings className="w-4 h-4" />Settings</NavLink></nav>
           </div>
         </aside>
       );
     }
 
     function Topbar() {
-      const location = useLocation();
-      const navigate = useNavigate();
-      const { collections } = useContext(BookContext);
-
+      const location = useLocation(); const navigate = useNavigate(); const { collections } = useContext(BookContext);
       const getPageTitle = () => {
         if (location.pathname === '/') return 'Dashboard';
         if (location.pathname === '/books') return 'My Books';
@@ -344,11 +286,7 @@
         if (location.pathname.startsWith('/books/')) return 'Book Details';
         if (location.pathname === '/to-buy') return 'To Buy';
         if (location.pathname === '/settings') return 'Settings & Backup';
-        if (location.pathname.startsWith('/collections/')) {
-           const id = location.pathname.split('/')[2];
-           const col = collections.find(c => c.id === id);
-           return col ? col.name : 'Collection';
-        }
+        if (location.pathname.startsWith('/collections/')) { const id = location.pathname.split('/')[2]; return collections.find(c => c.id === id)?.name || 'Collection'; }
         return 'BookNest';
       };
 
@@ -356,14 +294,10 @@
         <header className="h-20 px-4 md:px-8 flex items-center justify-between bg-background sticky top-0 z-10">
           <div className="flex items-center gap-4">
             <button className="md:hidden text-gray-500 hover:text-gray-900"><Icons.Menu className="w-6 h-6" /></button>
-            <h1 className="text-xl md:text-2xl font-bold text-gray-900 flex items-center gap-2">
-              <Icons.Menu className="w-5 h-5 hidden md:block text-gray-400" /> {getPageTitle()}
-            </h1>
+            <h1 className="text-xl md:text-2xl font-bold text-gray-900 flex items-center gap-2"><Icons.Menu className="w-5 h-5 hidden md:block text-gray-400" /> {getPageTitle()}</h1>
           </div>
           <div className="flex items-center gap-4 md:gap-6">
-            <button onClick={() => navigate('/books/add')} className="hidden md:flex items-center gap-2 bg-brand-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-brand-700 transition-colors shadow-sm">
-              <Icons.Plus className="w-4 h-4" /> Add Book
-            </button>
+            <button onClick={() => navigate('/books/add')} className="hidden md:flex items-center gap-2 bg-brand-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-brand-700 transition-colors shadow-sm"><Icons.Plus className="w-4 h-4" /> Add Book</button>
             <div className="w-9 h-9 rounded-full bg-brand-600 text-white flex items-center justify-center text-sm font-semibold cursor-pointer shadow-md shadow-brand-500/30">PS</div>
           </div>
         </header>
@@ -376,16 +310,14 @@
           <Sidebar />
           <div className="flex-1 flex flex-col min-w-0">
             <Topbar />
-            <main className="flex-1 overflow-y-auto px-4 md:px-8 pb-8 custom-scrollbar">
-              <Outlet />
-            </main>
+            <main className="flex-1 overflow-y-auto px-4 md:px-8 pb-8 custom-scrollbar"><Outlet /></main>
           </div>
         </div>
       );
     }
 
     // ==========================================
-    // 5. REUSABLE UI COMPONENTS (Phase 2, 3 & 4)
+    // 5. SHARED UI & BOOK COMPONENTS
     // ==========================================
     const StatusBadge = ({ status }) => {
       let colors = 'bg-gray-100 text-gray-600'; 
@@ -393,7 +325,6 @@
       else if (status === 'Currently Reading') colors = 'bg-blue-100 text-blue-700';
       else if (status === 'Unread') colors = 'bg-purple-100 text-purple-700';
       else if (status === 'Dropped') colors = 'bg-red-100 text-red-700';
-
       return <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-md ${colors}`}>{status}</span>;
     };
 
@@ -406,17 +337,13 @@
     }
 
     const BookCard = ({ book, viewMode }) => {
-      const { deleteBook } = useContext(BookContext);
-      const navigate = useNavigate();
-      const [menuOpen, setMenuOpen] = useState(false);
-      const menuRef = useRef(null);
+      const { deleteBook } = useContext(BookContext); const navigate = useNavigate();
+      const [menuOpen, setMenuOpen] = useState(false); const menuRef = useRef(null);
       useOutsideClick(menuRef, () => setMenuOpen(false));
 
       const ActionMenu = () => (
         <div className="relative" ref={menuRef}>
-          <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); setMenuOpen(!menuOpen); }} className="text-gray-400 hover:text-gray-900 bg-white/80 rounded-full p-1 shadow-sm transition-all z-10">
-            <Icons.MoreVertical className="w-5 h-5" />
-          </button>
+          <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); setMenuOpen(!menuOpen); }} className="text-gray-400 hover:text-gray-900 bg-white/80 rounded-full p-1 shadow-sm transition-all z-10"><Icons.MoreVertical className="w-5 h-5" /></button>
           {menuOpen && (
             <div className="absolute right-0 top-8 w-32 bg-white rounded-lg shadow-xl border border-gray-100 py-1 z-20">
               <button onClick={(e) => { e.stopPropagation(); navigate(`/books/${book.id}/edit`); }} className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"><Icons.Edit2 className="w-4 h-4"/> Edit</button>
@@ -474,39 +401,239 @@
     };
 
     // ==========================================
-    // 6. PAGE VIEWS
+    // 6. PHASE 6: DYNAMIC DASHBOARD & ANALYTICS
+    // ==========================================
+    const Dashboard = () => {
+      const { books, readingGoal, setReadingGoal } = useContext(BookContext);
+      const navigate = useNavigate();
+
+      // Memoized Dashboard Calculations
+      const stats = useMemo(() => {
+        const thisYear = new Date().getFullYear();
+        const thisMonth = new Date().getMonth();
+
+        // Base sets
+        const libraryBooks = books.filter(b => !b.wantToBuy);
+        const owned = books.filter(b => b.ownership === 'Owned');
+        const unread = libraryBooks.filter(b => b.status === 'Unread');
+        const currentlyReading = libraryBooks.filter(b => b.status === 'Currently Reading');
+        const finishedAll = libraryBooks.filter(b => b.status === 'Finished').sort((a,b) => new Date(b.dateFinished || b.dateAdded) - new Date(a.dateFinished || a.dateAdded));
+        const toBuy = books.filter(b => b.wantToBuy);
+        
+        // Reading Stats
+        const finishedThisYear = finishedAll.filter(b => new Date(b.dateFinished || b.dateAdded).getFullYear() === thisYear);
+        const finishedThisMonth = finishedThisYear.filter(b => new Date(b.dateFinished || b.dateAdded).getMonth() === thisMonth);
+        
+        const totalPages = libraryBooks.reduce((sum, b) => sum + (parseInt(b.readPages) || 0), 0);
+        
+        const ratedBooks = libraryBooks.filter(b => b.rating > 0);
+        const avgRating = ratedBooks.length > 0 ? (ratedBooks.reduce((sum, b) => sum + b.rating, 0) / ratedBooks.length).toFixed(1) : '0.0';
+
+        // Monthly Journey Array (Jan-Dec counts for current year)
+        const journey = new Array(12).fill(0);
+        finishedThisYear.forEach(b => {
+          const m = new Date(b.dateFinished || b.dateAdded).getMonth();
+          journey[m]++;
+        });
+
+        return {
+          total: libraryBooks.length, owned: owned.length, unread: unread.length,
+          reading: currentlyReading, finished: finishedAll, toBuy: toBuy.length,
+          finishedThisYearCount: finishedThisYear.length, finishedThisMonthCount: finishedThisMonth.length,
+          totalPages, avgRating, journey, currentYear: thisYear
+        };
+      }, [books]);
+
+      const goalProgress = readingGoal > 0 ? Math.min(Math.round((stats.finishedThisYearCount / readingGoal) * 100), 100) : 0;
+      
+      const handleEditGoal = () => {
+        const newGoal = parseInt(window.prompt('Enter your yearly reading goal (number of books):', readingGoal), 10);
+        if (!isNaN(newGoal) && newGoal > 0) setReadingGoal(newGoal);
+      };
+
+      const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      const maxJourney = Math.max(...stats.journey, 5); // minimum height scale 5
+
+      return (
+        <div className="space-y-8">
+          {/* 1. Header Greeting & Top Stats */}
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">Good morning, Piyush! 👋</h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+              {[
+                { label: 'Total Books', value: stats.total, color: 'text-gray-900' },
+                { label: 'Owned', value: stats.owned, color: 'text-gray-900' },
+                { label: 'Unread', value: stats.unread, color: 'text-purple-600' },
+                { label: 'Reading', value: stats.reading.length, color: 'text-blue-600' },
+                { label: 'Finished', value: stats.finished.length, color: 'text-green-600' },
+                { label: 'To Buy', value: stats.toBuy, color: 'text-yellow-600' }
+              ].map((stat, idx) => (
+                <div key={idx} className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex flex-col justify-center items-center text-center hover:shadow-md transition-shadow">
+                  <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">{stat.label}</p>
+                  <p className={`text-2xl font-bold ${stat.color}`}>{stat.value}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            {/* 2. Currently Reading Section */}
+            <div className="lg:col-span-2 space-y-4">
+              <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2"><Icons.BookOpen className="w-5 h-5 text-brand-600" /> Currently Reading</h3>
+              {stats.reading.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {stats.reading.map(book => {
+                    const progress = book.totalPages > 0 ? Math.round((book.readPages / book.totalPages) * 100) : (book.progress || 0);
+                    return (
+                      <div key={book.id} onClick={() => navigate(`/books/${book.id}`)} className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex items-start gap-4 hover:shadow-md transition-shadow cursor-pointer">
+                        <img src={book.cover} alt={book.title} className="w-20 h-28 object-cover rounded-md border border-gray-100 shadow-sm shrink-0" />
+                        <div className="flex-1 flex flex-col h-full min-w-0">
+                          <h4 className="font-semibold text-gray-900 text-sm mb-1 truncate" title={book.title}>{book.title}</h4>
+                          <p className="text-xs text-gray-500 mb-4 truncate">{book.author}</p>
+                          <div className="mt-auto">
+                            <div className="flex justify-between text-xs text-gray-500 font-medium mb-1.5">
+                              <span>{book.readPages} / {book.totalPages} p</span>
+                              <span className="text-brand-600">{progress}%</span>
+                            </div>
+                            <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                              <div className="h-full bg-brand-500 rounded-full transition-all duration-500" style={{ width: `${progress}%` }}></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="bg-white rounded-xl border border-gray-100 border-dashed p-8 text-center flex flex-col items-center justify-center h-40 shadow-sm">
+                  <p className="text-gray-500 text-sm mb-3">You're not reading anything right now.</p>
+                  <button onClick={() => navigate('/books')} className="text-brand-600 font-medium text-sm hover:text-brand-700 flex items-center gap-1">Start your next book <Icons.ChevronRight className="w-4 h-4"/></button>
+                </div>
+              )}
+            </div>
+
+            {/* 3. Yearly Reading Goal */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2"><Icons.Target className="w-5 h-5 text-brand-600" /> Reading Goal {stats.currentYear}</h3>
+                <button onClick={handleEditGoal} className="text-gray-400 hover:text-gray-900"><Icons.Edit2 className="w-4 h-4"/></button>
+              </div>
+              <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex flex-col items-center justify-center text-center h-[176px]">
+                <div className="relative w-28 h-28 flex items-center justify-center mb-2">
+                  {/* Circular Progress SVG */}
+                  <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="42" fill="none" stroke="#f3f4f6" strokeWidth="8" />
+                    <circle cx="50" cy="50" r="42" fill="none" stroke="#a855f7" strokeWidth="8" strokeDasharray="264" strokeDashoffset={264 - (goalProgress/100)*264} strokeLinecap="round" className="transition-all duration-1000 ease-out" />
+                  </svg>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <span className="text-2xl font-bold text-gray-900">{stats.finishedThisYearCount}</span>
+                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest border-t border-gray-200 pt-1 mt-1">/ {readingGoal}</span>
+                  </div>
+                </div>
+                <p className="text-xs text-gray-500 font-medium">{goalProgress >= 100 ? "Goal Achieved! 🎉" : "You're doing great!"}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pb-8">
+            {/* 4. Recently Finished */}
+            <div className="lg:col-span-2 space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2"><Icons.CheckCircle2 className="w-5 h-5 text-green-600" /> Recently Finished</h3>
+                <button onClick={() => navigate('/books?filter=Finished')} className="text-sm text-brand-600 font-medium hover:text-brand-700">View All</button>
+              </div>
+              {stats.finished.length > 0 ? (
+                <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex gap-6 overflow-x-auto custom-scrollbar">
+                  {stats.finished.slice(0, 5).map(book => (
+                    <div key={book.id} onClick={() => navigate(`/books/${book.id}`)} className="flex flex-col w-24 shrink-0 cursor-pointer group">
+                      <img src={book.cover} alt={book.title} className="w-24 h-36 object-cover rounded-md border border-gray-100 shadow-sm mb-2 group-hover:shadow-md transition-shadow" />
+                      <h4 className="font-semibold text-gray-900 text-xs truncate leading-tight" title={book.title}>{book.title}</h4>
+                      <p className="text-[10px] text-gray-500 truncate mt-0.5">
+                        {book.rating > 0 ? <span className="flex items-center gap-0.5 text-brand-500"><Icons.Star className="w-3 h-3 fill-current"/> {book.rating}</span> : book.author}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="bg-white rounded-xl border border-gray-100 border-dashed p-8 text-center flex flex-col items-center justify-center shadow-sm">
+                  <p className="text-gray-500 text-sm">No books finished yet.</p>
+                </div>
+              )}
+            </div>
+
+            {/* 5. Reading Journey / Stats */}
+            <div className="space-y-4">
+               <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2"><Icons.TrendingUp className="w-5 h-5 text-brand-600" /> Statistics</h3>
+               <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm space-y-5">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div><p className="text-[10px] font-bold text-gray-400 uppercase">This Month</p><p className="text-xl font-bold text-gray-900">{stats.finishedThisMonthCount} <span className="text-xs font-normal text-gray-500">books</span></p></div>
+                    <div><p className="text-[10px] font-bold text-gray-400 uppercase">Total Pages</p><p className="text-xl font-bold text-gray-900">{stats.totalPages.toLocaleString()}</p></div>
+                    <div><p className="text-[10px] font-bold text-gray-400 uppercase">Avg Rating</p><p className="text-xl font-bold text-gray-900 flex items-baseline gap-1">{stats.avgRating} <Icons.Star className="w-4 h-4 fill-brand-500 text-brand-500"/></p></div>
+                  </div>
+                  
+                  {/* Monthly Journey Bar Chart */}
+                  <div className="pt-4 border-t border-gray-100">
+                    <p className="text-[10px] font-bold text-gray-400 uppercase mb-3">Reading Journey ({stats.currentYear})</p>
+                    <div className="flex items-end justify-between h-20 gap-1">
+                      {stats.journey.map((val, idx) => {
+                        const heightPct = (val / maxJourney) * 100;
+                        return (
+                          <div key={idx} className="flex flex-col items-center flex-1 group relative">
+                            <div className="w-full bg-brand-100 rounded-t-sm" style={{ height: `${heightPct}%`, minHeight: val > 0 ? '4px' : '0' }}></div>
+                            <span className="text-[8px] text-gray-400 font-medium mt-1">{months[idx]}</span>
+                            {/* Tooltip */}
+                            {val > 0 && <div className="absolute bottom-full mb-1 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-800 text-white text-[10px] px-1.5 py-0.5 rounded pointer-events-none">{val}</div>}
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+               </div>
+            </div>
+
+          </div>
+        </div>
+      );
+    };
+
+    // ==========================================
+    // 7. REST OF PAGE VIEWS
     // ==========================================
 
-    // My Books View
+    // My Books View (Updated to support initial location state filters)
     const MyBooks = () => {
       const { collectionId } = useParams();
+      const location = useLocation();
       const navigate = useNavigate();
       const { books, collections, renameCollection, deleteCollection } = useContext(BookContext);
       
-      const [activeFilter, setActiveFilter] = useState('All');
+      const searchParams = new URLSearchParams(location.search);
+      const initialFilter = searchParams.get('filter') || 'All';
+
+      const [activeFilter, setActiveFilter] = useState(initialFilter);
       const [searchQuery, setSearchQuery] = useState('');
       const [sortBy, setSortBy] = useState('Recently Added');
       const [viewMode, setViewMode] = useState('grid');
       
+      // Sync state if URL changes directly
+      useEffect(() => { setActiveFilter(searchParams.get('filter') || 'All'); }, [location.search]);
+
       const filters = ['All', 'Owned', 'Not Owned', 'Unread', 'Currently Reading', 'Finished', 'Dropped'];
       const currentCollection = collectionId ? collections.find(c => c.id === collectionId) : null;
 
       const filteredAndSortedBooks = useMemo(() => {
         let result = [...books];
-        
         if (collectionId) result = result.filter(b => b.collections?.includes(collectionId));
-
         if (activeFilter !== 'All') {
           if (activeFilter === 'Owned') result = result.filter(b => b.ownership === 'Owned');
           else if (activeFilter === 'Not Owned') result = result.filter(b => b.ownership === 'Not Owned');
           else result = result.filter(b => b.status === activeFilter);
         }
-
         if (searchQuery) {
           const lq = searchQuery.toLowerCase();
           result = result.filter(b => b.title.toLowerCase().includes(lq) || b.author.toLowerCase().includes(lq));
         }
-
         result.sort((a, b) => {
           if (sortBy === 'Recently Added') return new Date(b.dateAdded || 0) - new Date(a.dateAdded || 0);
           if (sortBy === 'Title A-Z') return a.title.localeCompare(b.title);
@@ -517,17 +644,21 @@
         return result;
       }, [books, activeFilter, searchQuery, sortBy, collectionId]);
 
+      const handleFilterClick = (filter) => {
+        setActiveFilter(filter);
+        if (filter === 'All') navigate(location.pathname); // clear query param
+        else navigate(`${location.pathname}?filter=${filter}`);
+      };
+
       const handleRenameCollection = () => {
         if (!currentCollection) return;
         const newName = window.prompt('Rename collection:', currentCollection.name);
         if (newName) renameCollection(currentCollection.id, newName);
       };
-
       const handleDeleteCollection = () => {
         if (!currentCollection) return;
         if (window.confirm(`Delete collection "${currentCollection.name}"? Books will not be deleted.`)) {
-          deleteCollection(currentCollection.id);
-          navigate('/books');
+          deleteCollection(currentCollection.id); navigate('/books');
         }
       };
 
@@ -540,11 +671,10 @@
                 <button onClick={handleDeleteCollection} className="text-sm px-3 py-1.5 bg-red-50 hover:bg-red-100 rounded-lg text-red-600 flex items-center gap-1 border border-red-100"><Icons.Trash2 className="w-3 h-3"/> Delete Collection</button>
              </div>
           )}
-
           <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex items-center gap-2 overflow-x-auto custom-scrollbar pb-2 md:pb-0">
               {filters.map(filter => (
-                <button key={filter} onClick={() => setActiveFilter(filter)} className={`whitespace-nowrap px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${activeFilter === filter ? 'bg-brand-50 text-brand-600 border border-brand-200' : 'bg-transparent text-gray-500 hover:bg-gray-50 border border-transparent'}`}>
+                <button key={filter} onClick={() => handleFilterClick(filter)} className={`whitespace-nowrap px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${activeFilter === filter ? 'bg-brand-50 text-brand-600 border border-brand-200' : 'bg-transparent text-gray-500 hover:bg-gray-50 border border-transparent'}`}>
                   {filter}
                 </button>
               ))}
@@ -573,7 +703,7 @@
                 <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4 text-gray-400"><Icons.Library className="w-8 h-8" /></div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-1">No books found</h3>
                 <p className="text-gray-500 text-sm max-w-sm mb-6">No books matching filters or search.</p>
-                <button onClick={() => { setActiveFilter('All'); setSearchQuery(''); }} className="px-4 py-2 bg-brand-50 text-brand-600 font-medium rounded-lg text-sm hover:bg-brand-100">Clear Filters</button>
+                <button onClick={() => { handleFilterClick('All'); setSearchQuery(''); }} className="px-4 py-2 bg-brand-50 text-brand-600 font-medium rounded-lg text-sm hover:bg-brand-100">Clear Filters</button>
               </div>
             )}
           </div>
@@ -583,18 +713,11 @@
 
     // To Buy Page
     const ToBuyPage = () => {
-      const { books, updateBook } = useContext(BookContext);
-      const navigate = useNavigate();
+      const { books, updateBook } = useContext(BookContext); const navigate = useNavigate();
       const wishList = useMemo(() => books.filter(b => b.wantToBuy), [books]);
 
       const handlePurchase = (book) => {
-        updateBook({ 
-           ...book, 
-           wantToBuy: false, 
-           ownership: 'Owned', 
-           status: book.status || 'Unread',
-           dateAdded: new Date().toISOString()
-        });
+        updateBook({ ...book, wantToBuy: false, ownership: 'Owned', status: book.status || 'Unread', dateAdded: new Date().toISOString() });
       };
 
       const getPriorityColor = (prio) => {
@@ -603,50 +726,32 @@
         return 'text-green-600 bg-green-50 border-green-200';
       };
 
-      if (wishList.length === 0) {
-        return (
+      if (wishList.length === 0) return (
           <div className="h-full min-h-[400px] flex flex-col items-center justify-center text-center bg-white rounded-xl border border-gray-100 border-dashed p-8">
              <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4 text-gray-400"><Icons.ShoppingCart className="w-8 h-8" /></div>
              <h3 className="text-lg font-semibold text-gray-900 mb-1">Your wishlist is empty</h3>
              <p className="text-gray-500 text-sm max-w-sm mb-6">Books marked as "Want to Buy" will appear here.</p>
              <button onClick={() => navigate('/books/add')} className="px-4 py-2 bg-brand-600 text-white font-medium rounded-lg text-sm hover:bg-brand-700 shadow-sm">Add a Book</button>
           </div>
-        );
-      }
+      );
 
       return (
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-gray-50 border-b border-gray-100 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                <th className="p-4 pl-6">Book Details</th>
-                <th className="p-4">Priority</th>
-                <th className="p-4">Price</th>
-                <th className="p-4 pr-6 text-right">Actions</th>
-              </tr>
+              <tr className="bg-gray-50 border-b border-gray-100 text-xs font-semibold text-gray-500 uppercase tracking-wider"><th className="p-4 pl-6">Book Details</th><th className="p-4">Priority</th><th className="p-4">Price</th><th className="p-4 pr-6 text-right">Actions</th></tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {wishList.map(book => (
                 <tr key={book.id} className="hover:bg-gray-50/50 transition-colors">
                   <td className="p-4 pl-6 flex items-center gap-4 cursor-pointer" onClick={() => navigate(`/books/${book.id}`)}>
                     <img src={book.cover} alt={book.title} className="w-12 h-16 object-cover rounded shadow-sm border border-gray-100" />
-                    <div>
-                      <h4 className="font-semibold text-gray-900">{book.title}</h4>
-                      <p className="text-sm text-gray-500">{book.author}</p>
-                    </div>
+                    <div><h4 className="font-semibold text-gray-900">{book.title}</h4><p className="text-sm text-gray-500">{book.author}</p></div>
                   </td>
-                  <td className="p-4">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getPriorityColor(book.priority)}`}>
-                       {book.priority} Priority
-                    </span>
-                  </td>
-                  <td className="p-4 font-medium text-gray-900">
-                    {book.price > 0 ? `₹${book.price}` : '-'}
-                  </td>
+                  <td className="p-4"><span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getPriorityColor(book.priority)}`}>{book.priority} Priority</span></td>
+                  <td className="p-4 font-medium text-gray-900">{book.price > 0 ? `₹${book.price}` : '-'}</td>
                   <td className="p-4 pr-6 text-right space-x-3">
-                    <button onClick={() => handlePurchase(book)} className="text-sm px-3 py-1.5 bg-brand-50 hover:bg-brand-100 text-brand-600 font-medium rounded border border-brand-200 transition-colors">
-                      Mark Purchased
-                    </button>
+                    <button onClick={() => handlePurchase(book)} className="text-sm px-3 py-1.5 bg-brand-50 hover:bg-brand-100 text-brand-600 font-medium rounded border border-brand-200 transition-colors">Mark Purchased</button>
                     <button onClick={() => navigate(`/books/${book.id}/edit`)} className="text-gray-400 hover:text-gray-900"><Icons.Edit2 className="w-4 h-4 inline"/></button>
                   </td>
                 </tr>
@@ -659,34 +764,23 @@
 
     // Add/Edit Book Form
     const BookForm = () => {
-      const { id } = useParams();
+      const { id } = useParams(); const navigate = useNavigate();
       const { books, collections, addBook, updateBook } = useContext(BookContext);
-      const navigate = useNavigate();
-      
       const existingBook = id ? books.find(b => b.id === id) : null;
 
       const [formData, setFormData] = useState(existingBook || {
         title: '', author: '', cover: '', totalPages: '', readPages: 0,
         genre: '', isbn: '', status: 'Unread', ownership: 'Owned', rating: 0, notes: '',
-        wantToBuy: false, priority: 'Medium', price: '', collections: []
+        wantToBuy: false, priority: 'Medium', price: '', collections: [], dateFinished: null
       });
 
       const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
-        if (name === 'wantToBuy') {
-           setFormData({ ...formData, wantToBuy: checked, ownership: checked ? 'Not Owned' : 'Owned' });
-        } else {
-           setFormData({ ...formData, [name]: type === 'checkbox' ? checked : value });
-        }
+        if (name === 'wantToBuy') setFormData({ ...formData, wantToBuy: checked, ownership: checked ? 'Not Owned' : 'Owned' });
+        else setFormData({ ...formData, [name]: type === 'checkbox' ? checked : value });
       };
-
       const handleCollectionToggle = (colId) => {
-        setFormData(prev => ({
-           ...prev, 
-           collections: prev.collections.includes(colId) 
-              ? prev.collections.filter(id => id !== colId) 
-              : [...prev.collections, colId]
-        }));
+        setFormData(prev => ({ ...prev, collections: prev.collections.includes(colId) ? prev.collections.filter(id => id !== colId) : [...prev.collections, colId] }));
       };
 
       const handleSubmit = (e) => {
@@ -698,7 +792,12 @@
         dataToSave.price = parseFloat(dataToSave.price) || 0;
         if (!dataToSave.cover) dataToSave.cover = `https://placehold.co/300x450/fdfbf7/333333?text=${encodeURIComponent(dataToSave.title)}`;
 
-        if (dataToSave.status === 'Finished') { dataToSave.readPages = dataToSave.totalPages; dataToSave.progress = 100; }
+        // Smart Progress & dateFinished Logic
+        if (dataToSave.status === 'Finished') { 
+          dataToSave.readPages = dataToSave.totalPages; 
+          dataToSave.progress = 100;
+          if (existingBook?.status !== 'Finished') dataToSave.dateFinished = new Date().toISOString(); 
+        }
         else if (dataToSave.status === 'Unread') { dataToSave.readPages = 0; dataToSave.progress = 0; }
         else { dataToSave.progress = dataToSave.totalPages ? Math.round((dataToSave.readPages / dataToSave.totalPages) * 100) : 0; }
 
@@ -730,8 +829,7 @@
                   <div className="grid grid-cols-2 gap-2">
                     {collections.map(col => (
                       <label key={col.id} className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
-                        <input type="checkbox" checked={formData.collections.includes(col.id)} onChange={() => handleCollectionToggle(col.id)} className="rounded text-brand-600 focus:ring-brand-500" />
-                        {col.name}
+                        <input type="checkbox" checked={formData.collections.includes(col.id)} onChange={() => handleCollectionToggle(col.id)} className="rounded text-brand-600 focus:ring-brand-500" /> {col.name}
                       </label>
                     ))}
                   </div>
@@ -741,21 +839,12 @@
               <div className="space-y-5">
                 <div className={`p-4 rounded-lg border transition-colors ${formData.wantToBuy ? 'bg-yellow-50/50 border-yellow-200' : 'bg-gray-50 border-gray-100'}`}>
                   <label className="flex items-center gap-3 font-semibold text-gray-900 cursor-pointer">
-                    <input type="checkbox" name="wantToBuy" checked={formData.wantToBuy} onChange={handleChange} className="w-4 h-4 rounded text-brand-600 focus:ring-brand-500" />
-                    I want to buy this book
+                    <input type="checkbox" name="wantToBuy" checked={formData.wantToBuy} onChange={handleChange} className="w-4 h-4 rounded text-brand-600 focus:ring-brand-500" /> I want to buy this book
                   </label>
                   {formData.wantToBuy && (
                     <div className="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-yellow-100/50">
-                      <div>
-                        <label className="block text-xs font-medium text-gray-500 mb-1">Priority</label>
-                        <select name="priority" value={formData.priority} onChange={handleChange} className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-500 bg-white">
-                          <option value="High">High</option><option value="Medium">Medium</option><option value="Low">Low</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label className="block text-xs font-medium text-gray-500 mb-1">Price (₹)</label>
-                        <input type="number" name="price" value={formData.price} onChange={handleChange} className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-500" />
-                      </div>
+                      <div><label className="block text-xs font-medium text-gray-500 mb-1">Priority</label><select name="priority" value={formData.priority} onChange={handleChange} className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-500 bg-white"><option value="High">High</option><option value="Medium">Medium</option><option value="Low">Low</option></select></div>
+                      <div><label className="block text-xs font-medium text-gray-500 mb-1">Price (₹)</label><input type="number" name="price" value={formData.price} onChange={handleChange} className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-500" /></div>
                     </div>
                   )}
                 </div>
@@ -763,19 +852,8 @@
                 <div className={`bg-gray-50 p-4 rounded-lg border border-gray-100 space-y-4 ${formData.wantToBuy ? 'opacity-50 pointer-events-none' : ''}`}>
                   <h3 className="font-semibold text-sm text-gray-700">Library Status</h3>
                   <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-medium text-gray-500 mb-1">Ownership</label>
-                      <select name="ownership" value={formData.ownership} onChange={handleChange} className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-500 bg-white">
-                        <option value="Owned">Owned</option><option value="Not Owned">Not Owned</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium text-gray-500 mb-1">Reading Status</label>
-                      <select name="status" value={formData.status} onChange={handleChange} className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-500 bg-white">
-                        <option value="Unread">Unread</option><option value="Currently Reading">Currently Reading</option>
-                        <option value="Finished">Finished</option><option value="Dropped">Dropped</option>
-                      </select>
-                    </div>
+                    <div><label className="block text-xs font-medium text-gray-500 mb-1">Ownership</label><select name="ownership" value={formData.ownership} onChange={handleChange} className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-500 bg-white"><option value="Owned">Owned</option><option value="Not Owned">Not Owned</option></select></div>
+                    <div><label className="block text-xs font-medium text-gray-500 mb-1">Reading Status</label><select name="status" value={formData.status} onChange={handleChange} className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-500 bg-white"><option value="Unread">Unread</option><option value="Currently Reading">Currently Reading</option><option value="Finished">Finished</option><option value="Dropped">Dropped</option></select></div>
                   </div>
                   {formData.status === 'Currently Reading' && (
                     <div><label className="block text-xs font-medium text-gray-500 mb-1">Current Page</label><input type="number" name="readPages" value={formData.readPages} onChange={handleChange} className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-500" /></div>
@@ -801,23 +879,30 @@
 
     // Book Details View
     const BookDetails = () => {
-      const { id } = useParams();
-      const navigate = useNavigate();
+      const { id } = useParams(); const navigate = useNavigate();
       const { books, collections, updateBook, deleteBook } = useContext(BookContext);
       const book = books.find(b => b.id === id);
       const [readPages, setReadPages] = useState(book?.readPages || 0);
 
-      useEffect(() => {
-        if (book) setReadPages(book.readPages || 0);
-      }, [book]);
+      useEffect(() => { if (book) setReadPages(book.readPages || 0); }, [book]);
 
       if (!book) return <div className="p-8 text-center text-gray-500">Book not found.</div>;
 
       const handleUpdateProgress = () => {
         const val = parseInt(readPages) || 0;
         const total = book.totalPages || 0;
-        updateBook({ ...book, readPages: val, progress: total > 0 ? Math.round((val/total)*100) : 0 });
-        alert('Progress updated!');
+        let newStatus = book.status;
+        let newDateFinished = book.dateFinished;
+        
+        const progress = total > 0 ? Math.round((val/total)*100) : 0;
+        
+        // Auto-finish logic for analytics
+        if (val >= total && total > 0) {
+            newStatus = 'Finished';
+            if (book.status !== 'Finished') newDateFinished = new Date().toISOString();
+        }
+
+        updateBook({ ...book, readPages: val, progress, status: newStatus, dateFinished: newDateFinished });
       };
 
       const bookCollections = collections.filter(c => book.collections?.includes(c.id));
@@ -890,164 +975,44 @@
       );
     }
 
-    // ==========================================
-    // 7. PHASE 5: SETTINGS & BACKUP VIEW
-    // ==========================================
+    // Settings Page (Phase 5)
     const SettingsPage = () => {
       const { exportLibrary, importLibrary, resetLibrary } = useContext(BookContext);
-      const fileInputRef = useRef(null);
-      const [importStatus, setImportStatus] = useState({ message: '', type: '' });
+      const fileInputRef = useRef(null); const [importStatus, setImportStatus] = useState({ message: '', type: '' });
 
       const handleFileChange = (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-
+        const file = e.target.files[0]; if (!file) return;
         const reader = new FileReader();
         reader.onload = (event) => {
           try {
             const parsed = JSON.parse(event.target.result);
-            if (window.confirm("Restoring a backup will overwrite your current library. Do you want to proceed?")) {
-              importLibrary(parsed);
-              setImportStatus({ message: 'Library restored successfully!', type: 'success' });
-            }
-          } catch (err) {
-            setImportStatus({ message: `Import failed: ${err.message || 'Invalid JSON file.'}`, type: 'error' });
-          } finally {
-            if (fileInputRef.current) fileInputRef.current.value = '';
-          }
+            if (window.confirm("Overwrite current library?")) { importLibrary(parsed); setImportStatus({ message: 'Restored successfully!', type: 'success' }); }
+          } catch (err) { setImportStatus({ message: `Import failed: ${err.message}`, type: 'error' }); }
+          finally { if (fileInputRef.current) fileInputRef.current.value = ''; }
         };
         reader.readAsText(file);
       };
-
-      const handleReset = () => {
-        if (window.confirm("Are you sure you want to reset your library to the initial defaults? All custom changes will be permanently deleted.")) {
-          resetLibrary();
-          setImportStatus({ message: 'Library reset to factory defaults.', type: 'info' });
-        }
-      };
+      const handleReset = () => { if (window.confirm("Reset library to defaults? All custom changes will be deleted.")) { resetLibrary(); setImportStatus({ message: 'Reset to factory defaults.', type: 'info' }); } };
 
       return (
         <div className="max-w-4xl mx-auto space-y-6">
           <div className="bg-white p-6 md:p-8 rounded-xl border border-gray-100 shadow-sm">
             <h2 className="text-xl font-bold text-gray-900 mb-2">Data & Storage Management</h2>
-            <p className="text-sm text-gray-500 mb-6">
-              All your books, reading progress, and custom collections are automatically saved locally in your browser's persistent storage.
-            </p>
-
-            {importStatus.message && (
-              <div className={`p-4 rounded-lg text-sm mb-6 ${
-                importStatus.type === 'success' ? 'bg-green-50 text-green-700 border border-green-100' :
-                importStatus.type === 'error' ? 'bg-red-50 text-red-700 border border-red-100' :
-                'bg-blue-50 text-blue-700 border border-blue-100'
-              }`}>
-                {importStatus.message}
-              </div>
-            )}
-
+            <p className="text-sm text-gray-500 mb-6">Your data is stored locally in your browser.</p>
+            {importStatus.message && <div className={`p-4 rounded-lg text-sm mb-6 ${importStatus.type === 'success' ? 'bg-green-50 text-green-700' : importStatus.type === 'error' ? 'bg-red-50 text-red-700' : 'bg-blue-50 text-blue-700'}`}>{importStatus.message}</div>}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Export Backup */}
               <div className="border border-gray-100 rounded-xl p-5 bg-gray-50/50 flex flex-col justify-between">
-                <div>
-                  <div className="w-10 h-10 bg-brand-50 rounded-lg flex items-center justify-center text-brand-600 mb-3">
-                    <Icons.Download className="w-5 h-5" />
-                  </div>
-                  <h3 className="font-semibold text-gray-900 mb-1">Export Library</h3>
-                  <p className="text-xs text-gray-500 mb-4">
-                    Download a full JSON backup of your books, reading logs, and collections.
-                  </p>
-                </div>
-                <button
-                  onClick={exportLibrary}
-                  className="w-full py-2.5 px-4 bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium rounded-lg shadow-sm transition-colors flex items-center justify-center gap-2"
-                >
-                  <Icons.Download className="w-4 h-4" /> Download Backup
-                </button>
+                <div><div className="w-10 h-10 bg-brand-50 rounded-lg flex items-center justify-center text-brand-600 mb-3"><Icons.Download className="w-5 h-5" /></div><h3 className="font-semibold text-gray-900 mb-1">Export Library</h3><p className="text-xs text-gray-500 mb-4">Download full JSON backup.</p></div>
+                <button onClick={exportLibrary} className="w-full py-2.5 px-4 bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium rounded-lg shadow-sm flex justify-center gap-2"><Icons.Download className="w-4 h-4" /> Download Backup</button>
               </div>
-
-              {/* Import Backup */}
               <div className="border border-gray-100 rounded-xl p-5 bg-gray-50/50 flex flex-col justify-between">
-                <div>
-                  <div className="w-10 h-10 bg-purple-50 rounded-lg flex items-center justify-center text-purple-600 mb-3">
-                    <Icons.Upload className="w-5 h-5" />
-                  </div>
-                  <h3 className="font-semibold text-gray-900 mb-1">Import Library</h3>
-                  <p className="text-xs text-gray-500 mb-4">
-                    Restore your library from a previously exported BookNest JSON backup.
-                  </p>
-                </div>
-                <div>
-                  <input
-                    type="file"
-                    ref={fileInputRef}
-                    onChange={handleFileChange}
-                    accept=".json"
-                    className="hidden"
-                    id="import-file"
-                  />
-                  <label
-                    htmlFor="import-file"
-                    className="w-full py-2.5 px-4 bg-white hover:bg-gray-100 text-gray-700 border border-gray-200 text-sm font-medium rounded-lg cursor-pointer transition-colors flex items-center justify-center gap-2 shadow-sm text-center"
-                  >
-                    <Icons.Upload className="w-4 h-4" /> Select Backup File
-                  </label>
-                </div>
+                <div><div className="w-10 h-10 bg-purple-50 rounded-lg flex items-center justify-center text-purple-600 mb-3"><Icons.Upload className="w-5 h-5" /></div><h3 className="font-semibold text-gray-900 mb-1">Import Library</h3><p className="text-xs text-gray-500 mb-4">Restore from a previous backup.</p></div>
+                <div><input type="file" ref={fileInputRef} onChange={handleFileChange} accept=".json" className="hidden" id="import-file"/><label htmlFor="import-file" className="w-full py-2.5 px-4 bg-white hover:bg-gray-100 text-gray-700 border border-gray-200 text-sm font-medium rounded-lg cursor-pointer flex justify-center gap-2 shadow-sm"><Icons.Upload className="w-4 h-4" /> Select Backup File</label></div>
               </div>
             </div>
-
-            {/* Factory Reset */}
             <div className="mt-8 pt-6 border-t border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div>
-                <h4 className="text-sm font-semibold text-red-600">Reset to Defaults</h4>
-                <p className="text-xs text-gray-500">Permanently delete all custom items and restore initial sample books.</p>
-              </div>
-              <button
-                onClick={handleReset}
-                className="py-2 px-4 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 text-sm font-medium rounded-lg transition-colors flex items-center justify-center gap-2 shrink-0"
-              >
-                <Icons.RefreshCw className="w-4 h-4" /> Reset Library
-              </button>
-            </div>
-          </div>
-        </div>
-      );
-    };
-
-    // Dashboard Overview
-    const Dashboard = () => {
-      const { books } = useContext(BookContext);
-      const totalBooks = books.length;
-      const ownedBooks = books.filter(b => b.ownership === 'Owned').length;
-      const readingBooks = books.filter(b => b.status === 'Currently Reading' && !b.wantToBuy).length;
-      const finishedBooks = books.filter(b => b.status === 'Finished' && !b.wantToBuy).length;
-      const toBuyBooks = books.filter(b => b.wantToBuy).length;
-
-      return (
-        <div className="space-y-6">
-          <div className="bg-white rounded-xl p-8 border border-gray-100 shadow-sm">
-            <h2 className="text-xl font-bold mb-1">Good morning, Piyush! 👋</h2>
-            <p className="text-gray-500 text-sm">Let's continue your reading journey.</p>
-          </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-            <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
-              <p className="text-xs font-semibold text-gray-400 uppercase">Total Books</p>
-              <p className="text-2xl font-bold text-gray-900 mt-1">{totalBooks}</p>
-            </div>
-            <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
-              <p className="text-xs font-semibold text-gray-400 uppercase">Owned</p>
-              <p className="text-2xl font-bold text-gray-900 mt-1">{ownedBooks}</p>
-            </div>
-            <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
-              <p className="text-xs font-semibold text-gray-400 uppercase">Reading</p>
-              <p className="text-2xl font-bold text-brand-600 mt-1">{readingBooks}</p>
-            </div>
-            <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
-              <p className="text-xs font-semibold text-gray-400 uppercase">Finished</p>
-              <p className="text-2xl font-bold text-green-600 mt-1">{finishedBooks}</p>
-            </div>
-            <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
-              <p className="text-xs font-semibold text-gray-400 uppercase">To Buy</p>
-              <p className="text-2xl font-bold text-yellow-600 mt-1">{toBuyBooks}</p>
+              <div><h4 className="text-sm font-semibold text-red-600">Reset to Defaults</h4><p className="text-xs text-gray-500">Permanently delete custom items.</p></div>
+              <button onClick={handleReset} className="py-2 px-4 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 text-sm font-medium rounded-lg flex gap-2"><Icons.RefreshCw className="w-4 h-4" /> Reset Library</button>
             </div>
           </div>
         </div>
@@ -1055,7 +1020,7 @@
     };
 
     // ==========================================
-    // 8. APP ROUTING & MOUNT
+    // 8. APP ROUTING
     // ==========================================
     function App() {
       return (
